@@ -26,7 +26,7 @@ class PajakMobileApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => SummaryProvider()),
       ],
       child: MaterialApp(
-        title: 'LENTERA Mobile',
+        title: 'LENTERA (Layanan Elektronik Terpadu Pajak Daerah)',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
         home: const SplashScreen(),

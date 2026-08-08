@@ -91,7 +91,7 @@ class _SplashScreenState extends State<SplashScreen> {
             ),
             const SizedBox(height: 6),
             Text(
-              'Pajak Desa Pro Mobile',
+              'Layanan Elektronik Terpadu Pajak Daerah',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: AppColors.accent,
                     fontWeight: FontWeight.w500,

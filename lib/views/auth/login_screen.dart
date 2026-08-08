@@ -295,7 +295,7 @@ class _LoginScreenState extends State<LoginScreen> {
               // Quick Local Test Hint Card
               Center(
                 child: Text(
-                  'LENTERA Pajak Desa Pro v1.0 • Engine Mobile',
+                  'LENTERA (Layanan Elektronik Terpadu Pajak Daerah) v1.0 • Mobile',
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ),

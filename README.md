@@ -1,11 +1,11 @@
-# 📱 LENTERA Pajak Desa Pro Mobile (Flutter)
+# 📱 LENTERA (Layanan Elektronik Terpadu Pajak Daerah) Mobile (Flutter)
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-3.x-0175C2?style=for-the-badge&logo=dart&logoColor=white)](https://dart.dev)
 [![Architecture](https://img.shields.io/badge/Architecture-Clean%20%2B%20Provider-059669?style=for-the-badge)](https://flutter.dev)
 [![Theme](https://img.shields.io/badge/Theme-Light%20Emerald%20%26%20Glassmorphism-10B981?style=for-the-badge)](#)
 
-Aplikasi Mobile Resmi **LENTERA Pajak Desa Pro** — Solusi Digitalisasikan Tata Kelola & Penagihan Pajak Bumi dan Bangunan Perdesaan dan Perkotaan (PBB-P2) berbasis Mobile Android.
+Aplikasi Mobile Resmi **LENTERA (Layanan Elektronik Terpadu Pajak Daerah)** — Solusi Digitalisasikan Tata Kelola & Penagihan Pajak Bumi dan Bangunan Perdesaan dan Perkotaan (PBB-P2) berbasis Mobile Android.
 
 ---
 
@@ -85,4 +85,4 @@ flutter run
 
 ## 📜 Lisensi & Pengembang
 
-Dikembangkan dengan presisi oleh **Jarvis** untuk **Mr Zeps (Asep Setiawan)** — LENTERA Pajak Desa Pro Team.
+Dikembangkan dengan presisi oleh **Jarvis** untuk **Mr Zeps (Asep Setiawan)** — LENTERA Team.
