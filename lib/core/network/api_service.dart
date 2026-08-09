@@ -17,7 +17,11 @@ class ApiResponse {
   });
 }
 
+typedef UnauthenticatedCallback = void Function();
+
 class ApiService {
+  static UnauthenticatedCallback? onUnauthenticated;
+
   static Future<Map<String, String>> _getHeaders({bool requireAuth = true}) async {
     final headers = <String, String>{
       'Content-Type': 'application/json',
@@ -46,7 +50,7 @@ class ApiService {
       final headers = await _getHeaders(requireAuth: requireAuth);
       final response = await http.get(uri, headers: headers).timeout(const Duration(seconds: 15));
 
-      return _processResponse(response);
+      return _processResponse(response, endpoint: endpoint);
     } on TimeoutException {
       return ApiResponse(
         success: false,
@@ -74,7 +78,7 @@ class ApiService {
         body: body != null ? jsonEncode(body) : null,
       ).timeout(const Duration(seconds: 15));
 
-      return _processResponse(response);
+      return _processResponse(response, endpoint: endpoint);
     } on TimeoutException {
       return ApiResponse(
         success: false,
@@ -90,7 +94,11 @@ class ApiService {
     }
   }
 
-  static ApiResponse _processResponse(http.Response response) {
+  static ApiResponse _processResponse(http.Response response, {String? endpoint}) {
+    if (response.statusCode == 401 && endpoint != null && !endpoint.contains('/auth/login')) {
+      onUnauthenticated?.call();
+    }
+
     try {
       final Map<String, dynamic> body = jsonDecode(response.body);
       final bool success = body['success'] == true || response.statusCode == 200 || response.statusCode == 201;

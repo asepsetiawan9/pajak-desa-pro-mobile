@@ -4,6 +4,9 @@ import '../core/storage/session_manager.dart';
 import '../core/constants/api_constants.dart';
 import '../models/user_model.dart';
 
+import '../core/navigation/navigation_service.dart';
+import '../views/auth/login_screen.dart';
+
 class AuthProvider extends ChangeNotifier {
   bool _isLoading = true;
   bool _isLoggedIn = false;
@@ -20,7 +23,23 @@ class AuthProvider extends ChangeNotifier {
   String get currentBaseUrl => _currentBaseUrl;
 
   AuthProvider() {
+    ApiService.onUnauthenticated = handleUnauthenticated;
     _initAuth();
+  }
+
+  Future<void> handleUnauthenticated() async {
+    if (!_isLoggedIn) return;
+    await SessionManager.clearSession();
+    _user = null;
+    _isLoggedIn = false;
+    _isAccessDeniedRole = false;
+    _errorMessage = 'Sesi telah berakhir atau tidak sah. Silakan login kembali.';
+    notifyListeners();
+
+    NavigationService.navigatorKey.currentState?.pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const LoginScreen()),
+      (route) => false,
+    );
   }
 
   Future<void> _initAuth() async {

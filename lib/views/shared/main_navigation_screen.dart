@@ -7,6 +7,7 @@ import '../kolektor/dhkp_list_screen.dart';
 import '../kolektor/penerimaan_pbb_screen.dart';
 import '../kepaladesa/kades_dashboard.dart';
 import '../kepaladesa/kades_report_screen.dart';
+import '../auth/login_screen.dart';
 import 'profile_screen.dart';
 import 'custom_bottom_nav.dart';
 
@@ -37,6 +38,18 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
+    
+    if (!authProvider.isLoggedIn) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => const LoginScreen()),
+            (route) => false,
+          );
+        }
+      });
+    }
+
     final user = authProvider.user;
 
     final isKolektor = user?.isKolektor ?? true;

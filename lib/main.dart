@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'core/navigation/navigation_service.dart';
 import 'core/theme/app_theme.dart';
 import 'providers/auth_provider.dart';
 import 'providers/dhkp_provider.dart';
@@ -26,6 +27,7 @@ class PajakMobileApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => SummaryProvider()),
       ],
       child: MaterialApp(
+        navigatorKey: NavigationService.navigatorKey,
         title: 'Lentera Pajak Mobile',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
