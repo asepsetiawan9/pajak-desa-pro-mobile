@@ -23,7 +23,9 @@ class PaymentProvider extends ChangeNotifier {
 
     final body = {
       'dhkp_id': item.id,
+      'dhkp_ids': [item.id],
       'nop': item.nop,
+      'nops': [item.nop],
       'nama_wp': item.namaWp,
       'dusun': item.dusun,
       'pbb_terutang': item.pbbTerutang,
@@ -70,8 +72,10 @@ class PaymentProvider extends ChangeNotifier {
     notifyListeners();
 
     final nops = items.map((e) => e.nop).toList();
+    final dhkpIds = items.map((e) => e.id).where((id) => id > 0).toList();
     final body = {
       'nops': nops,
+      'dhkp_ids': dhkpIds,
       'metode_pembayaran': metodePembayaran,
       'catatan': catatan ?? 'Pembayaran Multi-NOP Mobile',
       'metadata_kk': {
