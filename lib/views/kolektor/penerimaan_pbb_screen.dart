@@ -9,7 +9,6 @@ import '../../models/dhkp_model.dart';
 import '../../models/user_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/dhkp_provider.dart';
-import 'bayar_modal.dart';
 import 'multi_bayar_modal.dart';
 
 class TransactionItemModel {
@@ -156,11 +155,15 @@ class _PenerimaanPbbScreenState extends State<PenerimaanPbbScreen> with SingleTi
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => BayarModal(dhkpItem: item),
+      builder: (context) => MultiBayarModal(selectedItems: [item]),
     );
 
     if (result == true) {
       _fetchTransactions();
+      if (!mounted) return;
+      final dhkpProvider = Provider.of<DhkpProvider>(context, listen: false);
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      await dhkpProvider.fetchDhkp(isRefresh: true, currentUser: authProvider.user);
     }
   }
 

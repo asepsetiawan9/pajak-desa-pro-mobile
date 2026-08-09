@@ -171,14 +171,18 @@ class _MultiBayarModalState extends State<MultiBayarModal> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Bayar Kolektif STTS',
+                                widget.selectedItems.length == 1
+                                    ? 'Pembayaran STTS PBB-P2'
+                                    : 'Bayar Kolektif STTS',
                                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                       fontWeight: FontWeight.bold,
                                       color: AppColors.textPrimary,
                                     ),
                               ),
                               Text(
-                                '${widget.selectedItems.length} SPPT Terpilih (${uniqueWpNames.length} Wajib Pajak)',
+                                widget.selectedItems.length == 1
+                                    ? 'NOP: ${widget.selectedItems.first.nop}'
+                                    : '${widget.selectedItems.length} SPPT Terpilih (${uniqueWpNames.length} Wajib Pajak)',
                                 style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -467,8 +471,10 @@ class _MultiBayarModalState extends State<MultiBayarModal> {
                   icon: const Icon(Icons.check_circle_rounded),
                   label: Text(
                     paymentProvider.isSubmitting
-                        ? 'Memproses Pembayaran Kolektif...'
-                        : 'Konfirmasi & Simpan Pembayaran (${widget.selectedItems.length} NOP)',
+                        ? 'Memproses Pembayaran...'
+                        : widget.selectedItems.length == 1
+                            ? 'Konfirmasi & Simpan Pembayaran STTS'
+                            : 'Konfirmasi & Simpan Pembayaran (${widget.selectedItems.length} NOP)',
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   style: ElevatedButton.styleFrom(

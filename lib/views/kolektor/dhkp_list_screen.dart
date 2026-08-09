@@ -6,7 +6,7 @@ import '../../core/constants/app_colors.dart';
 import '../../models/dhkp_model.dart';
 import '../../providers/dhkp_provider.dart';
 import '../../providers/auth_provider.dart';
-import 'bayar_modal.dart';
+import 'multi_bayar_modal.dart';
 
 class DhkpListScreen extends StatefulWidget {
   const DhkpListScreen({super.key});
@@ -51,12 +51,19 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
   }
 
   void _openBayarModal(DhkpModel item) async {
-    await showModalBottomSheet(
+    final res = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => BayarModal(dhkpItem: item),
+      builder: (_) => MultiBayarModal(selectedItems: [item]),
     );
+
+    if (res == true) {
+      if (!mounted) return;
+      final auth = Provider.of<AuthProvider>(context, listen: false);
+      final dhkp = Provider.of<DhkpProvider>(context, listen: false);
+      await dhkp.fetchDhkp(isRefresh: true, currentUser: auth.user);
+    }
   }
 
   void _openFilterBottomSheet(DhkpProvider provider, dynamic user, List<String> allowedDusuns) {
