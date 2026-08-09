@@ -49,4 +49,53 @@ class PaymentProvider extends ChangeNotifier {
       return false;
     }
   }
+
+  Future<bool> submitMultiPayment({
+    required List<DhkpModel> items,
+    required double totalDenda,
+    required double totalBayar,
+    required String metodePembayaran,
+    double? uangDibayar,
+    double? kembalian,
+    String? catatan,
+  }) async {
+    if (items.isEmpty) {
+      _errorMessage = 'Pilih minimal 1 NOP untuk dibayar.';
+      notifyListeners();
+      return false;
+    }
+
+    _isSubmitting = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    final nops = items.map((e) => e.nop).toList();
+    final body = {
+      'nops': nops,
+      'metode_pembayaran': metodePembayaran,
+      'catatan': catatan ?? 'Pembayaran Multi-NOP Mobile',
+      'metadata_kk': {
+        'uang_dibayar': uangDibayar,
+        'kembalian': kembalian,
+        'jumlah_nop': items.length,
+        'wp_names': items.map((e) => e.namaWp).toSet().toList(),
+      },
+    };
+
+    final response = await ApiService.post(
+      ApiConstants.transactionsEndpoint,
+      body: body,
+    );
+
+    _isSubmitting = false;
+
+    if (response.success) {
+      notifyListeners();
+      return true;
+    } else {
+      _errorMessage = response.message;
+      notifyListeners();
+      return false;
+    }
+  }
 }

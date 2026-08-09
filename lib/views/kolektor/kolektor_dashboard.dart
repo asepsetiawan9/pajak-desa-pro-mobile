@@ -174,9 +174,9 @@ class _KolektorDashboardState extends State<KolektorDashboard> {
                 children: [
                   Expanded(
                     child: _buildShortcutCard(
-                      icon: Icons.receipt_long_rounded,
-                      title: 'Data DHKP',
-                      subtitle: '${dhkpProvider.items.length} SPPT',
+                      icon: Icons.point_of_sale_rounded,
+                      title: 'Penerimaan PBB',
+                      subtitle: 'Kasir & Setoran',
                       color: AppColors.primary,
                       onTap: () => widget.onNavigateTab?.call(1),
                     ),
@@ -184,9 +184,9 @@ class _KolektorDashboardState extends State<KolektorDashboard> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: _buildShortcutCard(
-                      icon: Icons.history_rounded,
-                      title: 'Riwayat STTS',
-                      subtitle: 'Setoran Pajak',
+                      icon: Icons.receipt_long_rounded,
+                      title: 'Data DHKP',
+                      subtitle: '${dhkpProvider.items.length} SPPT',
                       color: AppColors.accent,
                       onTap: () => widget.onNavigateTab?.call(2),
                     ),
@@ -250,12 +250,12 @@ class _KolektorDashboardState extends State<KolektorDashboard> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            'Penagihan & Entri Setoran',
+                            'Penerimaan & Bayar STTS',
                             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            'Cari NOP Wajib Pajak di data DHKP untuk memproses bayar STTS.',
+                            'Cari NOP Wajib Pajak untuk menginput pembayaran STTS instan.',
                             style: TextStyle(color: AppColors.textMuted, fontSize: 12),
                           ),
                         ],

@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../kolektor/kolektor_dashboard.dart';
 import '../kolektor/dhkp_list_screen.dart';
-import '../kolektor/transaction_list_screen.dart';
+import '../kolektor/penerimaan_pbb_screen.dart';
 import '../kepaladesa/kades_dashboard.dart';
 import '../kepaladesa/kades_report_screen.dart';
 import 'profile_screen.dart';
@@ -45,8 +45,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     final List<Widget> pages = isKolektor
         ? [
             KolektorDashboard(onNavigateTab: _onTabSelected),
+            const PenerimaanPbbScreen(),
             const DhkpListScreen(),
-            const TransactionListScreen(),
             const ProfileScreen(),
           ]
         : [
@@ -64,14 +64,14 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               label: 'Beranda',
             ),
             NavItemData(
+              icon: Icons.point_of_sale_outlined,
+              activeIcon: Icons.point_of_sale_rounded,
+              label: 'Penerimaan',
+            ),
+            NavItemData(
               icon: Icons.receipt_long_outlined,
               activeIcon: Icons.receipt_long_rounded,
               label: 'Data DHKP',
-            ),
-            NavItemData(
-              icon: Icons.history_outlined,
-              activeIcon: Icons.history_rounded,
-              label: 'Transaksi',
             ),
             NavItemData(
               icon: Icons.person_outline,
