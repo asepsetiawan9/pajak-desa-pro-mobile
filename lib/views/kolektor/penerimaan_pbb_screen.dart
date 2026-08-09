@@ -1047,7 +1047,7 @@ class _PenerimaanPbbScreenState extends State<PenerimaanPbbScreen> with SingleTi
           left: 16,
           right: 16,
           top: 16,
-          bottom: _selectedDhkpIds.isNotEmpty ? 100 : 16,
+          bottom: _selectedDhkpIds.isNotEmpty ? 180 : 100,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1525,7 +1525,7 @@ class _PenerimaanPbbScreenState extends State<PenerimaanPbbScreen> with SingleTi
           Positioned(
             left: 16,
             right: 16,
-            bottom: 16,
+            bottom: 95,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
