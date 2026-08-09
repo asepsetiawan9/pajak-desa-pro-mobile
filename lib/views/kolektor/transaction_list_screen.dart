@@ -3,44 +3,9 @@ import 'package:intl/intl.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/api_constants.dart';
 import '../../core/network/api_service.dart';
+import '../../core/utils/struk_share_helper.dart';
+import '../../models/transaction_item_model.dart';
 
-class TransactionItemModel {
-  final int id;
-  final String kodeTransaksi;
-  final String nop;
-  final String namaWp;
-  final String dusun;
-  final double amount;
-  final String metode;
-  final String createdAt;
-  final String status;
-
-  TransactionItemModel({
-    required this.id,
-    required this.kodeTransaksi,
-    required this.nop,
-    required this.namaWp,
-    required this.dusun,
-    required this.amount,
-    required this.metode,
-    required this.createdAt,
-    required this.status,
-  });
-
-  factory TransactionItemModel.fromJson(Map<String, dynamic> json) {
-    return TransactionItemModel(
-      id: json['id'] ?? 0,
-      kodeTransaksi: json['kode_transaksi'] ?? json['nomor_stts'] ?? 'STTS-${json['id']}',
-      nop: json['nop'] ?? '-',
-      namaWp: json['nama_wp'] ?? json['wp_nama'] ?? 'Wajib Pajak',
-      dusun: json['dusun'] ?? '-',
-      amount: (json['total_bayar'] ?? json['amount'] ?? json['pbb_terutang'] ?? 0).toDouble(),
-      metode: json['metode_pembayaran'] ?? 'Tunai',
-      createdAt: json['created_at'] ?? '',
-      status: json['status'] ?? 'SUCCESS',
-    );
-  }
-}
 
 class TransactionListScreen extends StatefulWidget {
   const TransactionListScreen({super.key});
@@ -76,24 +41,53 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
       _errorMessage = null;
     });
 
-    final response = await ApiService.get(ApiConstants.transactionsEndpoint);
+    try {
+      final response = await ApiService.get(ApiConstants.transactionsEndpoint);
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    if (response.success && response.data != null) {
-      final List rawList = response.data is List
-          ? response.data
-          : (response.data['data'] is List ? response.data['data'] : []);
+      if (response.success && response.data != null) {
+        List rawList = [];
+        if (response.data is List) {
+          rawList = response.data as List;
+        } else if (response.data is Map) {
+          final mapObj = response.data as Map;
+          if (mapObj['data'] is List) {
+            rawList = mapObj['data'] as List;
+          }
+        }
 
+        final List<TransactionItemModel> parsedList = [];
+        for (var item in rawList) {
+          if (item is Map) {
+            try {
+              final Map<String, dynamic> mapData = Map<String, dynamic>.from(item);
+              parsedList.add(TransactionItemModel.fromJson(mapData));
+            } catch (e) {
+              debugPrint('Error parsing transaction item: $e');
+            }
+          }
+        }
+
+        setState(() {
+          _transactions = parsedList;
+        });
+      } else {
+        setState(() {
+          _errorMessage = response.message.isNotEmpty ? response.message : 'Gagal memuat riwayat transaksi';
+        });
+      }
+    } catch (e) {
+      if (!mounted) return;
       setState(() {
-        _transactions = rawList.map((e) => TransactionItemModel.fromJson(e)).toList();
-        _isLoading = false;
+        _errorMessage = 'Gagal memuat riwayat transaksi: ${e.toString()}';
       });
-    } else {
-      setState(() {
-        _errorMessage = response.message.isNotEmpty ? response.message : 'Gagal memuat riwayat transaksi';
-        _isLoading = false;
-      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -112,7 +106,9 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
     return _filteredTransactions.fold(0, (sum, item) => sum + item.amount);
   }
 
-  void _showTransactionDetailModal(TransactionItemModel item) {
+  void _showDetailModal(TransactionItemModel item) {
+    final GlobalKey strukKey = GlobalKey();
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -179,40 +175,91 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
                 ],
               ),
               const Divider(height: 24),
-              _buildDetailRow('No. Transaksi', item.kodeTransaksi),
-              _buildDetailRow('Nama Wajib Pajak', item.namaWp),
-              _buildDetailRow('NOP PBB-P2', item.nop),
-              _buildDetailRow('Wilayah Dusun', 'Dusun ${item.dusun}'),
-              _buildDetailRow('Metode Bayar', item.metode),
-              _buildDetailRow('Waktu Transaksi', item.createdAt),
-              const Divider(height: 24),
+              RepaintBoundary(
+                key: strukKey,
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceCard,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.glassBorder),
+                  ),
+                  child: Column(
+                    children: [
+                      const Text(
+                        'PEMERINTAH KABUPATEN / DESA',
+                        style: TextStyle(fontSize: 10, color: AppColors.textMuted, fontWeight: FontWeight.bold, letterSpacing: 1),
+                      ),
+                      const SizedBox(height: 2),
+                      const Text(
+                        'LENTERA - SURAT TANDA TERIMA SETORAN (STTS)',
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.primary),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 12),
+                      const Divider(height: 1, thickness: 1, color: AppColors.glassBorder),
+                      const SizedBox(height: 12),
+                      _buildDetailRow('No. Transaksi', item.kodeTransaksi),
+                      _buildDetailRow('Nama Wajib Pajak', item.namaWp),
+                      _buildDetailRow('NOP PBB-P2', item.nop),
+                      _buildDetailRow('Wilayah Dusun', 'Dusun ${item.dusun}'),
+                      _buildDetailRow('Metode Bayar', item.metode),
+                      _buildDetailRow('Waktu Transaksi', item.createdAt),
+                      const Divider(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text('Total Setoran', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                          Text(
+                            _currency.format(item.amount),
+                            style: const TextStyle(
+                              color: AppColors.success,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Total Setoran', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                  Text(
-                    _currency.format(item.amount),
-                    style: const TextStyle(
-                      color: AppColors.success,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        StrukShareHelper.showShareOptionsModal(
+                          context: context,
+                          item: item,
+                          repaintKey: strukKey,
+                        );
+                      },
+                      icon: const Icon(Icons.share_rounded),
+                      label: const Text('Bagikan Struk'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Struk Bukti Pembayaran STTS telah dicetak via Bluetooth/Thermal Printer.'),
+                            backgroundColor: AppColors.success,
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.print_rounded),
+                      label: const Text('Cetak Struk'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                      ),
                     ),
                   ),
                 ],
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Struk Bukti Pembayaran STTS telah dicetak/disimpan.'),
-                      backgroundColor: AppColors.primary,
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.print_rounded),
-                label: const Text('Cetak / Bagikan Struk'),
               ),
             ],
           ),
@@ -354,7 +401,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.receipt_long_outlined, color: AppColors.textMuted.withOpacity(0.5), size: 64),
+                                  Icon(Icons.receipt_long_outlined, color: AppColors.textMuted.withValues(alpha: 0.5), size: 64),
                                   const SizedBox(height: 12),
                                   Text(
                                     _searchQuery.isNotEmpty
@@ -377,7 +424,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
                                     side: const BorderSide(color: AppColors.glassBorder),
                                   ),
                                   child: InkWell(
-                                    onTap: () => _showTransactionDetailModal(item),
+                                    onTap: () => _showDetailModal(item),
                                     borderRadius: BorderRadius.circular(16),
                                     child: Padding(
                                       padding: const EdgeInsets.all(14),
@@ -388,7 +435,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
                                             decoration: BoxDecoration(
                                               color: AppColors.successBg,
                                               shape: BoxShape.circle,
-                                              border: Border.all(color: AppColors.success.withOpacity(0.3)),
+                                              border: Border.all(color: AppColors.success.withValues(alpha: 0.3)),
                                             ),
                                             child: const Icon(
                                               Icons.check_circle_outline_rounded,

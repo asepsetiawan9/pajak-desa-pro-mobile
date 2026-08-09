@@ -63,30 +63,34 @@ class _SplashScreenState extends State<SplashScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.all(20),
+              width: 110,
+              height: 110,
               decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: AppColors.primaryGradient,
+                borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primary.withOpacity(0.5),
-                    blurRadius: 30,
-                    spreadRadius: 5,
+                    color: AppColors.primary.withValues(alpha: 0.4),
+                    blurRadius: 25,
+                    spreadRadius: 2,
+                    offset: const Offset(0, 8),
                   ),
                 ],
               ),
-              child: const Icon(
-                Icons.account_balance_wallet_rounded,
-                size: 64,
-                color: Colors.white,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(24),
+                child: Image.asset(
+                  'assets/images/app_icon.png',
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
             const SizedBox(height: 24),
             Text(
-              'LENTERA',
+              'Lentera Pajak Mobile',
               style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                    fontSize: 32,
-                    letterSpacing: 2,
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1,
                   ),
             ),
             const SizedBox(height: 6),

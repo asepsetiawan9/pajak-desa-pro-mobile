@@ -3,19 +3,9 @@ import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../providers/auth_provider.dart';
 import '../auth/login_screen.dart';
-import 'server_config_modal.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
-
-  void _openServerConfig(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => const ServerConfigModal(),
-    );
-  }
 
   void _confirmLogout(BuildContext context, AuthProvider authProvider) {
     showDialog(
@@ -35,7 +25,7 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(width: 14),
             const Text(
-              'Konfirmasi Logout',
+              'Konfirmasi Keluar Akun',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
@@ -93,14 +83,6 @@ class ProfileScreen extends StatelessWidget {
         title: const Text('Profil & Pengaturan'),
         centerTitle: false,
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.dns_rounded),
-            tooltip: 'Pengaturan Server Host',
-            onPressed: () => _openServerConfig(context),
-          ),
-          const SizedBox(width: 8),
-        ],
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
@@ -116,7 +98,7 @@ class ProfileScreen extends StatelessWidget {
                 border: Border.all(color: AppColors.glassBorder),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
+                    color: Colors.black.withValues(alpha: 0.04),
                     blurRadius: 20,
                     spreadRadius: 2,
                     offset: const Offset(0, 4),
@@ -147,7 +129,7 @@ class ProfileScreen extends StatelessWidget {
                           child: Icon(
                             isKades ? Icons.admin_panel_settings_rounded : Icons.shield_rounded,
                             size: 140,
-                            color: Colors.white.withOpacity(0.12),
+                            color: Colors.white.withValues(alpha: 0.12),
                           ),
                         ),
                       ],
@@ -170,7 +152,7 @@ class ProfileScreen extends StatelessWidget {
                                   color: AppColors.surface,
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.1),
+                                      color: Colors.black.withValues(alpha: 0.1),
                                       blurRadius: 12,
                                       offset: const Offset(0, 4),
                                     ),
@@ -221,12 +203,12 @@ class ProfileScreen extends StatelessWidget {
                             decoration: BoxDecoration(
                               color: isKades
                                   ? const Color(0xFFFFFBEB)
-                                  : AppColors.primary.withOpacity(0.1),
+                                  : AppColors.primary.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(30),
                               border: Border.all(
                                 color: isKades
                                     ? const Color(0xFFFCD34D)
-                                    : AppColors.primary.withOpacity(0.3),
+                                    : AppColors.primary.withValues(alpha: 0.3),
                               ),
                             ),
                             child: Row(
@@ -239,7 +221,7 @@ class ProfileScreen extends StatelessWidget {
                                 ),
                                 const SizedBox(width: 6),
                                 Text(
-                                  isKades ? 'KEPALA DESA (EXECUTIVE)' : 'KOLEKTOR LAPANGAN PBB-P2',
+                                  isKades ? 'KEPALA DESA (EKSEKUTIF)' : 'KOLEKTOR LAPANGAN PBB-P2',
                                   style: TextStyle(
                                     color: isKades ? const Color(0xFFB45309) : AppColors.primary,
                                     fontWeight: FontWeight.w800,
@@ -269,7 +251,7 @@ class ProfileScreen extends StatelessWidget {
                             children: [
                               _buildMiniKpiItem(
                                 label: 'Hak Akses Role',
-                                value: isKades ? 'Executive' : 'Kolektor',
+                                value: isKades ? 'Eksekutif' : 'Kolektor',
                                 icon: Icons.security_rounded,
                                 iconColor: AppColors.info,
                               ),
@@ -322,7 +304,7 @@ class ProfileScreen extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: AppColors.successBg,
                         borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: AppColors.success.withOpacity(0.3)),
+                        border: Border.all(color: AppColors.success.withValues(alpha: 0.3)),
                       ),
                       child: const Row(
                         children: [
@@ -351,7 +333,7 @@ class ProfileScreen extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: AppColors.successBg,
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: AppColors.success.withOpacity(0.3)),
+                            border: Border.all(color: AppColors.success.withValues(alpha: 0.3)),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -427,16 +409,11 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            // 4. Koneksi Server REST API Card
+            // 4. Koneksi Server REST API Card (Deployed Production Server)
             _buildSectionCard(
               title: 'Koneksi Server REST API',
               icon: Icons.dns_rounded,
               iconColor: AppColors.primary,
-              action: IconButton(
-                icon: const Icon(Icons.tune_rounded, color: AppColors.primary),
-                tooltip: 'Ubah Host Server',
-                onPressed: () => _openServerConfig(context),
-              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -452,10 +429,10 @@ class ProfileScreen extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: AppColors.primary.withOpacity(0.1),
+                            color: AppColors.primary.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: const Icon(Icons.link_rounded, size: 18, color: AppColors.primary),
+                          child: const Icon(Icons.cloud_done_rounded, size: 18, color: AppColors.primary),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -463,7 +440,7 @@ class ProfileScreen extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const Text(
-                                'Target Endpoint Host',
+                                'Target Endpoint Host (Server Deployed)',
                                 style: TextStyle(color: AppColors.textMuted, fontSize: 11),
                               ),
                               const SizedBox(height: 2),
@@ -484,7 +461,7 @@ class ProfileScreen extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: AppColors.successBg,
                             borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: AppColors.success.withOpacity(0.3)),
+                            border: Border.all(color: AppColors.success.withValues(alpha: 0.3)),
                           ),
                           child: const Row(
                             mainAxisSize: MainAxisSize.min,
@@ -505,21 +482,6 @@ class ProfileScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton.icon(
-                      onPressed: () => _openServerConfig(context),
-                      icon: const Icon(Icons.edit_note_rounded, size: 18),
-                      label: const Text('Pengaturan & Switch Host Server'),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.primary,
-                        side: const BorderSide(color: AppColors.primary),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
-                    ),
-                  ),
                 ],
               ),
             ),
@@ -530,7 +492,7 @@ class ProfileScreen extends StatelessWidget {
               title: 'Informasi Aplikasi',
               icon: Icons.info_outline_rounded,
               iconColor: AppColors.textMuted,
-              child: _buildInfoRow('Versi Aplikasi', 'v1.0.0 (Production Build)'),
+              child: _buildInfoRow('Versi Aplikasi', 'v1.0.0 (Versi Produksi)'),
             ),
             const SizedBox(height: 28),
 
@@ -606,7 +568,7 @@ class ProfileScreen extends StatelessWidget {
         border: Border.all(color: AppColors.glassBorder),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -623,7 +585,7 @@ class ProfileScreen extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: iconColor.withOpacity(0.12),
+                      color: iconColor.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(icon, color: iconColor, size: 20),
@@ -639,7 +601,7 @@ class ProfileScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              if (action != null) action,
+              ?action,
             ],
           ),
           const SizedBox(height: 14),

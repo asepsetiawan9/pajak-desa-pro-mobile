@@ -6,68 +6,13 @@ import '../../core/constants/app_colors.dart';
 import '../../core/constants/api_constants.dart';
 import '../../core/network/api_service.dart';
 import '../../models/dhkp_model.dart';
+import '../../models/transaction_item_model.dart';
 import '../../models/user_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/dhkp_provider.dart';
+import '../../core/utils/struk_share_helper.dart';
 import 'multi_bayar_modal.dart';
 
-class TransactionItemModel {
-  final int id;
-  final String kodeTransaksi;
-  final String nop;
-  final String namaWp;
-  final String dusun;
-  final double amount;
-  final double denda;
-  final double pokok;
-  final String metode;
-  final String createdAt;
-  final String status;
-  final String? operatorName;
-
-  TransactionItemModel({
-    required this.id,
-    required this.kodeTransaksi,
-    required this.nop,
-    required this.namaWp,
-    required this.dusun,
-    required this.amount,
-    this.denda = 0,
-    this.pokok = 0,
-    required this.metode,
-    required this.createdAt,
-    required this.status,
-    this.operatorName,
-  });
-
-  factory TransactionItemModel.fromJson(Map<String, dynamic> json) {
-    String opName = 'Kolektor Lapangan';
-    if (json['operator'] != null && json['operator'] is Map) {
-      opName = json['operator']['name'] ?? opName;
-    } else if (json['operator_name'] != null) {
-      opName = json['operator_name'].toString();
-    }
-
-    double tot = (json['total_bayar'] ?? json['amount'] ?? json['pbb_terutang'] ?? 0).toDouble();
-    double dnd = (json['denda'] ?? 0).toDouble();
-    double pk = (json['pbb_terutang'] ?? (tot - dnd)).toDouble();
-
-    return TransactionItemModel(
-      id: json['id'] ?? 0,
-      kodeTransaksi: json['kode_transaksi'] ?? json['nomor_stts'] ?? 'STTS-${json['id']}',
-      nop: json['nop'] ?? '-',
-      namaWp: json['nama_wp'] ?? json['wp_nama'] ?? 'Wajib Pajak',
-      dusun: json['dusun'] ?? '-',
-      amount: tot,
-      denda: dnd,
-      pokok: pk,
-      metode: json['metode_pembayaran'] ?? json['metode'] ?? 'TUNAI',
-      createdAt: json['created_at'] ?? json['tanggal_transaksi'] ?? '',
-      status: json['status'] ?? 'SUCCESS',
-      operatorName: opName,
-    );
-  }
-}
 
 class PenerimaanPbbScreen extends StatefulWidget {
   final int initialSubTab; // 0 = Input Pembayaran, 1 = List Penerimaan
@@ -84,7 +29,7 @@ class _PenerimaanPbbScreenState extends State<PenerimaanPbbScreen> with SingleTi
   final TextEditingController _inputSearchController = TextEditingController();
   final TextEditingController _listSearchController = TextEditingController();
 
-  // Tab 1 (Input Pembayaran) Filter States
+  // Tab 1 (Input Pembayaran) Filter & Selection States
   String _inputSearchQuery = '';
   String _inputStatusFilter = 'BELUM_BAYAR'; // 'BELUM_BAYAR', 'LUNAS', 'ALL'
   String _inputDusunFilter = 'ALL';
@@ -129,24 +74,53 @@ class _PenerimaanPbbScreenState extends State<PenerimaanPbbScreen> with SingleTi
       _transactionError = null;
     });
 
-    final response = await ApiService.get(ApiConstants.transactionsEndpoint);
+    try {
+      final response = await ApiService.get(ApiConstants.transactionsEndpoint);
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    if (response.success && response.data != null) {
-      final List rawList = response.data is List
-          ? response.data
-          : (response.data['data'] is List ? response.data['data'] : []);
+      if (response.success && response.data != null) {
+        List rawList = [];
+        if (response.data is List) {
+          rawList = response.data as List;
+        } else if (response.data is Map) {
+          final mapObj = response.data as Map;
+          if (mapObj['data'] is List) {
+            rawList = mapObj['data'] as List;
+          }
+        }
 
+        final List<TransactionItemModel> parsedList = [];
+        for (var item in rawList) {
+          if (item is Map) {
+            try {
+              final Map<String, dynamic> mapData = Map<String, dynamic>.from(item);
+              parsedList.add(TransactionItemModel.fromJson(mapData));
+            } catch (e) {
+              debugPrint('Error parsing transaction item: $e');
+            }
+          }
+        }
+
+        setState(() {
+          _transactions = parsedList;
+        });
+      } else {
+        setState(() {
+          _transactionError = response.message.isNotEmpty ? response.message : 'Gagal memuat daftar penerimaan PBB-P2';
+        });
+      }
+    } catch (e) {
+      if (!mounted) return;
       setState(() {
-        _transactions = rawList.map((e) => TransactionItemModel.fromJson(e)).toList();
-        _isLoadingTransactions = false;
+        _transactionError = 'Gagal memuat transaksi: ${e.toString()}';
       });
-    } else {
-      setState(() {
-        _transactionError = response.message.isNotEmpty ? response.message : 'Gagal memuat daftar penerimaan PBB-P2';
-        _isLoadingTransactions = false;
-      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoadingTransactions = false;
+        });
+      }
     }
   }
 
@@ -292,6 +266,32 @@ class _PenerimaanPbbScreenState extends State<PenerimaanPbbScreen> with SingleTi
         .fold(0.0, (sum, item) => sum + item.amount);
   }
 
+  String _getSortLabel(String sortKey) {
+    switch (sortKey) {
+      case 'NAMA_ASC':
+        return 'Nama WP (A-Z)';
+      case 'NOMINAL_DESC':
+        return 'Nominal Terbesar';
+      case 'NOMINAL_ASC':
+        return 'Nominal Terkecil';
+      default:
+        return 'Bawaan';
+    }
+  }
+
+  String _getPeriodeLabel(String periodeKey) {
+    switch (periodeKey) {
+      case 'HARI_INI':
+        return 'Hari Ini';
+      case '7_HARI':
+        return '7 Hari Terakhir';
+      case 'BULAN_INI':
+        return 'Bulan Ini';
+      default:
+        return 'Semua Periode';
+    }
+  }
+
   // Modal Sheet Filter untuk Sub-Tab 1 (Input Pembayaran)
   void _showInputFilterBottomSheet(UserModel? user) {
     showModalBottomSheet(
@@ -411,7 +411,7 @@ class _PenerimaanPbbScreenState extends State<PenerimaanPbbScreen> with SingleTi
                     runSpacing: 8,
                     children: [
                       _buildModalChip(
-                        label: 'Default',
+                        label: 'Bawaan',
                         isSelected: _inputSortBy == 'DEFAULT',
                         activeColor: AppColors.primary,
                         onTap: () => setModalState(() => _inputSortBy = 'DEFAULT'),
@@ -703,6 +703,8 @@ class _PenerimaanPbbScreenState extends State<PenerimaanPbbScreen> with SingleTi
   }
 
   void _showTransactionStrukModal(TransactionItemModel item) {
+    final GlobalKey strukKey = GlobalKey();
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -783,57 +785,60 @@ class _PenerimaanPbbScreenState extends State<PenerimaanPbbScreen> with SingleTi
               ),
               const Divider(height: 24),
 
-              // STTS Digital Receipt Ticket Box
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceCard,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.glassBorder),
-                ),
-                child: Column(
-                  children: [
-                    const Text(
-                      'PEMERINTAH KABUPATEN / DESA',
-                      style: TextStyle(fontSize: 10, color: AppColors.textMuted, fontWeight: FontWeight.bold, letterSpacing: 1),
-                    ),
-                    const SizedBox(height: 2),
-                    const Text(
-                      'LENTERA - SURAT TANDA TERIMA SETORAN (STTS)',
-                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.primary),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 12),
-                    const Divider(height: 1, thickness: 1, color: AppColors.glassBorder),
-                    const SizedBox(height: 12),
-                    _buildStrukRow('No. STTS Transaksi', item.kodeTransaksi),
-                    _buildStrukRow('Nama Wajib Pajak', item.namaWp),
-                    _buildStrukRow('NOP PBB-P2', item.nop),
-                    _buildStrukRow('Wilayah Dusun', 'Dusun ${item.dusun}'),
-                    _buildStrukRow('Waktu Bayar', item.createdAt.isNotEmpty ? item.createdAt : DateFormat('dd MMM yyyy HH:mm').format(DateTime.now())),
-                    _buildStrukRow('Metode Setoran', item.metode),
-                    _buildStrukRow('Petugas Kolektor', item.operatorName ?? 'Kolektor Lapangan'),
-                    const SizedBox(height: 8),
-                    const Divider(height: 1, color: AppColors.glassBorder),
-                    const SizedBox(height: 8),
-                    _buildStrukRow('PBB Pokok Terutang', _currency.format(item.pokok > 0 ? item.pokok : item.amount)),
-                    if (item.denda > 0) _buildStrukRow('Denda / Sanksi', _currency.format(item.denda)),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text('TOTAL SETORAN', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                        Text(
-                          _currency.format(item.amount),
-                          style: const TextStyle(
-                            color: AppColors.success,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
+              // STTS Digital Receipt Ticket Box (Wrapped with RepaintBoundary for PNG snapshot)
+              RepaintBoundary(
+                key: strukKey,
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceCard,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.glassBorder),
+                  ),
+                  child: Column(
+                    children: [
+                      const Text(
+                        'PEMERINTAH KABUPATEN / DESA',
+                        style: TextStyle(fontSize: 10, color: AppColors.textMuted, fontWeight: FontWeight.bold, letterSpacing: 1),
+                      ),
+                      const SizedBox(height: 2),
+                      const Text(
+                        'LENTERA - SURAT TANDA TERIMA SETORAN (STTS)',
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.primary),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 12),
+                      const Divider(height: 1, thickness: 1, color: AppColors.glassBorder),
+                      const SizedBox(height: 12),
+                      _buildStrukRow('No. STTS Transaksi', item.kodeTransaksi),
+                      _buildStrukRow('Nama Wajib Pajak', item.namaWp),
+                      _buildStrukRow('NOP PBB-P2', item.nop),
+                      _buildStrukRow('Wilayah Dusun', 'Dusun ${item.dusun}'),
+                      _buildStrukRow('Waktu Bayar', item.createdAt.isNotEmpty ? item.createdAt : DateFormat('dd MMM yyyy HH:mm').format(DateTime.now())),
+                      _buildStrukRow('Metode Setoran', item.metode),
+                      _buildStrukRow('Petugas Kolektor', item.operatorName ?? 'Kolektor Lapangan'),
+                      const SizedBox(height: 8),
+                      const Divider(height: 1, color: AppColors.glassBorder),
+                      const SizedBox(height: 8),
+                      _buildStrukRow('PBB Pokok Terutang', _currency.format(item.pokok > 0 ? item.pokok : item.amount)),
+                      if (item.denda > 0) _buildStrukRow('Denda / Sanksi', _currency.format(item.denda)),
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text('TOTAL SETORAN', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                          Text(
+                            _currency.format(item.amount),
+                            style: const TextStyle(
+                              color: AppColors.success,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 20),
@@ -844,12 +849,10 @@ class _PenerimaanPbbScreenState extends State<PenerimaanPbbScreen> with SingleTi
                   Expanded(
                     child: OutlinedButton.icon(
                       onPressed: () {
-                        Navigator.pop(context);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Mengunduh / Menyimpan Struk Resi STTS...'),
-                            backgroundColor: AppColors.primary,
-                          ),
+                        StrukShareHelper.showShareOptionsModal(
+                          context: context,
+                          item: item,
+                          repaintKey: strukKey,
                         );
                       },
                       icon: const Icon(Icons.share_rounded),
@@ -860,7 +863,6 @@ class _PenerimaanPbbScreenState extends State<PenerimaanPbbScreen> with SingleTi
                   Expanded(
                     child: ElevatedButton.icon(
                       onPressed: () {
-                        Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text('Struk Bukti Pembayaran STTS telah dicetak via Bluetooth/Thermal Printer.'),
@@ -971,7 +973,7 @@ class _PenerimaanPbbScreenState extends State<PenerimaanPbbScreen> with SingleTi
                     children: [
                       Icon(Icons.receipt_long_rounded, size: 18),
                       SizedBox(width: 6),
-                      Text('List Penerimaan'),
+                      Text('Daftar Penerimaan'),
                     ],
                   ),
                 ),
@@ -1258,7 +1260,7 @@ class _PenerimaanPbbScreenState extends State<PenerimaanPbbScreen> with SingleTi
                     if (_inputSortBy != 'DEFAULT') ...[
                       const SizedBox(width: 6),
                       Chip(
-                        label: Text('Urutan: $_inputSortBy'),
+                        label: Text('Urutan: ${_getSortLabel(_inputSortBy)}'),
                         backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                         labelStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.primary),
                         onDeleted: () => setState(() => _inputSortBy = 'DEFAULT'),
@@ -1862,7 +1864,7 @@ class _PenerimaanPbbScreenState extends State<PenerimaanPbbScreen> with SingleTi
                               children: [
                                 if (_listPeriodeFilter != 'HARI_INI')
                                   _buildActiveTag(
-                                    label: 'Periode: ${_listPeriodeFilter.replaceAll('_', ' ')}',
+                                    label: 'Periode: ${_getPeriodeLabel(_listPeriodeFilter)}',
                                     onRemove: () => setState(() => _listPeriodeFilter = 'HARI_INI'),
                                   ),
                                 if (_listMetodeFilter != 'ALL')
@@ -1889,7 +1891,7 @@ class _PenerimaanPbbScreenState extends State<PenerimaanPbbScreen> with SingleTi
                               _listDusunFilter = 'ALL';
                             });
                           },
-                          child: const Text('Reset', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.danger)),
+                          child: const Text('Reset Filter', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.danger)),
                         ),
                       ],
                     ),

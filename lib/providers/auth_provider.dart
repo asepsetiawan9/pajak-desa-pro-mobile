@@ -10,7 +10,7 @@ class AuthProvider extends ChangeNotifier {
   UserModel? _user;
   String? _errorMessage;
   bool _isAccessDeniedRole = false;
-  String _currentBaseUrl = ApiConstants.defaultLocalAndroidEmulator;
+  String _currentBaseUrl = ApiConstants.defaultProductionVps;
 
   bool get isLoading => _isLoading;
   bool get isLoggedIn => _isLoggedIn;

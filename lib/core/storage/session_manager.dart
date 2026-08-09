@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io' show Platform;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../constants/api_constants.dart';
 import '../../models/user_model.dart';
@@ -41,16 +40,7 @@ class SessionManager {
   }
 
   static Future<String> getBaseUrl() async {
-    final prefs = await SharedPreferences.getInstance();
-    final customUrl = prefs.getString(ApiConstants.customBaseUrlKey);
-    if (customUrl != null && customUrl.isNotEmpty) {
-      if (Platform.isAndroid && customUrl.contains('127.0.0.1')) {
-        return customUrl.replaceAll('127.0.0.1', '10.0.2.2');
-      }
-      return customUrl;
-    }
-    // Default to Android emulator local address
-    return ApiConstants.defaultLocalAndroidEmulator;
+    return ApiConstants.defaultProductionVps;
   }
 
   static Future<void> clearSession() async {

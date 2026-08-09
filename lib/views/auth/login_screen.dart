@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../providers/auth_provider.dart';
-import '../shared/server_config_modal.dart';
 import '../shared/main_navigation_screen.dart';
 import '../shared/role_denied_screen.dart';
 
@@ -53,15 +52,6 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  void _openServerConfig() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => const ServerConfigModal(),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
@@ -74,71 +64,41 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Server host Chip Bar at top
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  GestureDetector(
-                    onTap: _openServerConfig,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: AppColors.surfaceCard,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: AppColors.glassBorder),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.dns_rounded, size: 14, color: AppColors.accent),
-                          const SizedBox(width: 6),
-                          Text(
-                            authProvider.currentBaseUrl.replaceAll('http://', '').replaceAll('https://', ''),
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: AppColors.textSecondary,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                          ),
-                          const SizedBox(width: 4),
-                          const Icon(Icons.tune, size: 14, color: AppColors.textMuted),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 16),
 
               // App Logo & Header
               Center(
                 child: Column(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(18),
+                      width: 90,
+                      height: 90,
                       decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: AppColors.primaryGradient,
+                        borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.primary.withOpacity(0.4),
-                            blurRadius: 24,
-                            spreadRadius: 4,
+                            color: AppColors.primary.withValues(alpha: 0.4),
+                            blurRadius: 20,
+                            spreadRadius: 2,
+                            offset: const Offset(0, 6),
                           ),
                         ],
                       ),
-                      child: const Icon(
-                        Icons.account_balance_wallet_rounded,
-                        size: 48,
-                        color: Colors.white,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: Image.asset(
+                          'assets/images/app_icon.png',
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 16),
                     Text(
-                      'LENTERA',
+                      'Lentera Pajak Mobile',
                       style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                            fontSize: 28,
-                            letterSpacing: 1.5,
+                            fontSize: 26,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1,
                           ),
                     ),
                     const SizedBox(height: 4),
@@ -158,9 +118,9 @@ class _LoginScreenState extends State<LoginScreen> {
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.1),
+                  color: AppColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+                  border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
                 ),
                 child: Row(
                   children: [
@@ -254,7 +214,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         decoration: BoxDecoration(
                           color: AppColors.dangerBg,
                           borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: AppColors.danger.withOpacity(0.5)),
+                          border: Border.all(color: AppColors.danger.withValues(alpha: 0.5)),
                         ),
                         child: Row(
                           children: [

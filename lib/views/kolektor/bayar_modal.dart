@@ -232,7 +232,7 @@ class _BayarModalState extends State<BayarModal> {
               decoration: BoxDecoration(
                 color: AppColors.successBg,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.success.withOpacity(0.4)),
+                border: Border.all(color: AppColors.success.withValues(alpha: 0.4)),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,

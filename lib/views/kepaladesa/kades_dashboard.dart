@@ -56,7 +56,7 @@ class _KadesDashboardState extends State<KadesDashboard> {
                     style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                   ),
                   const Text(
-                    'Executive Monitoring PBB-P2',
+                    'Pemantauan Eksekutif PBB-P2',
                     style: TextStyle(fontSize: 11, color: AppColors.accent),
                   ),
                 ],
@@ -67,11 +67,12 @@ class _KadesDashboardState extends State<KadesDashboard> {
         actions: [
           IconButton(
             icon: const Icon(Icons.logout_rounded, color: AppColors.danger),
-            tooltip: 'Logout',
+            tooltip: 'Keluar',
             onPressed: () async {
+              final navigator = Navigator.of(context);
               await authProvider.logout();
               if (!mounted) return;
-              Navigator.of(context).pushReplacement(
+              navigator.pushReplacement(
                 MaterialPageRoute(builder: (_) => const LoginScreen()),
               );
             },
@@ -97,7 +98,7 @@ class _KadesDashboardState extends State<KadesDashboard> {
                         border: Border.all(color: AppColors.glassBorder),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
+                            color: Colors.black.withValues(alpha: 0.05),
                             blurRadius: 15,
                             spreadRadius: 2,
                           ),

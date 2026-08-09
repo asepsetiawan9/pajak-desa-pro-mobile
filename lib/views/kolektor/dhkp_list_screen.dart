@@ -188,7 +188,7 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
                     spacing: 8,
                     runSpacing: 8,
                     children: [
-                      _buildModalSortChip('default', 'Default', Icons.sort_rounded, provider, user, setModalState),
+                      _buildModalSortChip('default', 'Bawaan', Icons.sort_rounded, provider, user, setModalState),
                       _buildModalSortChip('nama_asc', 'Nama (A - Z)', Icons.sort_by_alpha_rounded, provider, user, setModalState),
                       _buildModalSortChip('nama_desc', 'Nama (Z - A)', Icons.sort_by_alpha_rounded, provider, user, setModalState),
                       _buildModalSortChip('nominal_desc', 'Nominal Terbesar', Icons.arrow_downward_rounded, provider, user, setModalState),
@@ -262,7 +262,7 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
           decoration: BoxDecoration(
-            color: isSelected ? color.withOpacity(0.12) : AppColors.surfaceCard,
+            color: isSelected ? color.withValues(alpha: 0.12) : AppColors.surfaceCard,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: isSelected ? color : AppColors.cardBorder,
@@ -362,7 +362,7 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
             color: AppColors.surface,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.03),
+                color: Colors.black.withValues(alpha: 0.03),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -380,7 +380,7 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
                       decoration: BoxDecoration(
                         color: AppColors.surfaceCard,
                         borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: AppColors.inputBorder.withOpacity(0.5)),
+                        border: Border.all(color: AppColors.inputBorder.withValues(alpha: 0.5)),
                       ),
                       child: TextField(
                         controller: _searchController,
@@ -414,7 +414,7 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
                     clipBehavior: Clip.none,
                     children: [
                       Material(
-                        color: dhkpProvider.hasActiveFilters ? AppColors.primary.withOpacity(0.12) : AppColors.surfaceCard,
+                        color: dhkpProvider.hasActiveFilters ? AppColors.primary.withValues(alpha: 0.12) : AppColors.surfaceCard,
                         borderRadius: BorderRadius.circular(14),
                         child: InkWell(
                           onTap: () => _openFilterBottomSheet(dhkpProvider, user, allowedDusuns),
@@ -424,7 +424,7 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(14),
                               border: Border.all(
-                                color: dhkpProvider.hasActiveFilters ? AppColors.primary : AppColors.inputBorder.withOpacity(0.5),
+                                color: dhkpProvider.hasActiveFilters ? AppColors.primary : AppColors.inputBorder.withValues(alpha: 0.5),
                                 width: dhkpProvider.hasActiveFilters ? 1.5 : 1,
                               ),
                             ),
@@ -546,7 +546,7 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
                         child: const Padding(
                           padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           child: Text(
-                            'Reset All',
+                            'Reset Semua',
                             style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.danger),
                           ),
                         ),
@@ -645,7 +645,7 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.search_off_rounded, size: 64, color: AppColors.textMuted.withOpacity(0.5)),
+                            Icon(Icons.search_off_rounded, size: 64, color: AppColors.textMuted.withValues(alpha: 0.5)),
                             const SizedBox(height: 12),
                             Text(
                               'Data SPPT Tidak Ditemukan',
@@ -669,7 +669,7 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
                                 dhkpProvider.resetFilters(currentUser: user);
                               },
                               icon: const Icon(Icons.refresh, size: 18),
-                              label: Text(dhkpProvider.allRows.isEmpty ? 'Muat Data DHKP' : 'Reset Filter & Reload'),
+                              label: Text(dhkpProvider.allRows.isEmpty ? 'Muat Data DHKP' : 'Reset Filter & Muat Ulang'),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppColors.primary,
                                 foregroundColor: Colors.white,
@@ -748,7 +748,7 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: color.withOpacity(0.25),
+                      color: color.withValues(alpha: 0.25),
                       blurRadius: 6,
                       offset: const Offset(0, 2),
                     ),
@@ -811,9 +811,9 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: AppColors.primary.withOpacity(0.1),
+        color: AppColors.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -835,15 +835,15 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
   String _getSortLabel(String sort) {
     switch (sort) {
       case 'nama_asc':
-        return 'Sort: Nama (A-Z)';
+        return 'Urutan: Nama (A-Z)';
       case 'nama_desc':
-        return 'Sort: Nama (Z-A)';
+        return 'Urutan: Nama (Z-A)';
       case 'nominal_desc':
-        return 'Sort: Nominal High';
+        return 'Urutan: Nominal Terbesar';
       case 'nominal_asc':
-        return 'Sort: Nominal Low';
+        return 'Urutan: Nominal Terkecil';
       default:
-        return 'Sort: Default';
+        return 'Urutan: Bawaan';
     }
   }
 
@@ -969,7 +969,7 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
                   ElevatedButton.icon(
                     onPressed: () => _openBayarModal(item),
                     icon: const Icon(Icons.payment, size: 16),
-                    label: const Text('Bayar Now'),
+                    label: const Text('Bayar Sekarang'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.success,
                       foregroundColor: Colors.white,

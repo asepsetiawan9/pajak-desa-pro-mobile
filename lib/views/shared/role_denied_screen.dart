@@ -25,7 +25,7 @@ class RoleDeniedScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: AppColors.dangerBg,
                   shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.danger.withOpacity(0.5), width: 2),
+                  border: Border.all(color: AppColors.danger.withValues(alpha: 0.5), width: 2),
                 ),
                 child: const Icon(
                   Icons.shield_outlined,

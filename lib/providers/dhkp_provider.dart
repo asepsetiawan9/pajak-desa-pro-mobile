@@ -69,11 +69,15 @@ class DhkpProvider extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
 
-    await _loadPageData(page: 1, currentUser: currentUser);
-
-    _isLoading = false;
-    _hasFetched = true;
-    notifyListeners();
+    try {
+      await _loadPageData(page: 1, currentUser: currentUser);
+    } catch (e) {
+      _errorMessage = 'Gagal memuat data DHKP: ${e.toString()}';
+    } finally {
+      _isLoading = false;
+      _hasFetched = true;
+      notifyListeners();
+    }
   }
 
   Future<void> fetchNextPage({UserModel? currentUser}) async {
@@ -83,10 +87,14 @@ class DhkpProvider extends ChangeNotifier {
     notifyListeners();
 
     final nextPage = _currentPage + 1;
-    await _loadPageData(page: nextPage, currentUser: currentUser);
-
-    _isLoadingMore = false;
-    notifyListeners();
+    try {
+      await _loadPageData(page: nextPage, currentUser: currentUser);
+    } catch (e) {
+      _errorMessage = 'Gagal memuat halaman berikutnya: ${e.toString()}';
+    } finally {
+      _isLoadingMore = false;
+      notifyListeners();
+    }
   }
 
   Future<void> _loadPageData({

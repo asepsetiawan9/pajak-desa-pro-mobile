@@ -72,7 +72,7 @@ class _KadesReportScreenState extends State<KadesReportScreen> {
             ),
             Text(
               'Evaluasi PBB-P2 Per Dusun (Tahun 2026)',
-              style: TextStyle(fontSize: 11, color: AppColors.textMuted.withOpacity(0.9), fontWeight: FontWeight.normal),
+              style: TextStyle(fontSize: 11, color: AppColors.textMuted.withValues(alpha: 0.9), fontWeight: FontWeight.normal),
             ),
           ],
         ),
@@ -116,9 +116,9 @@ class _KadesReportScreenState extends State<KadesReportScreen> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                               decoration: BoxDecoration(
-                                color: AppColors.primary.withOpacity(0.1),
+                                color: AppColors.primary.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+                                border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
                               ),
                               child: Text(
                                 '${_details.length} Dusun',
@@ -228,7 +228,7 @@ class _KadesReportScreenState extends State<KadesReportScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF059669).withOpacity(0.3),
+            color: const Color(0xFF059669).withValues(alpha: 0.3),
             blurRadius: 16,
             offset: const Offset(0, 6),
           ),
@@ -266,7 +266,7 @@ class _KadesReportScreenState extends State<KadesReportScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: Colors.white30),
                 ),
@@ -392,7 +392,7 @@ class _KadesReportScreenState extends State<KadesReportScreen> {
                       width: 36,
                       height: 36,
                       decoration: BoxDecoration(
-                        color: statusColor.withOpacity(0.12),
+                        color: statusColor.withValues(alpha: 0.12),
                         shape: BoxShape.circle,
                       ),
                       child: Center(
@@ -429,9 +429,9 @@ class _KadesReportScreenState extends State<KadesReportScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(
-                    color: statusColor.withOpacity(0.1),
+                    color: statusColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: statusColor.withOpacity(0.3)),
+                    border: Border.all(color: statusColor.withValues(alpha: 0.3)),
                   ),
                   child: Text(
                     '${persen.toStringAsFixed(1)}%',
@@ -453,7 +453,7 @@ class _KadesReportScreenState extends State<KadesReportScreen> {
               child: LinearProgressIndicator(
                 value: (persen / 100).clamp(0.0, 1.0),
                 minHeight: 6,
-                backgroundColor: AppColors.inputBorder.withOpacity(0.4),
+                backgroundColor: AppColors.inputBorder.withValues(alpha: 0.4),
                 valueColor: AlwaysStoppedAnimation<Color>(statusColor),
               ),
             ),
