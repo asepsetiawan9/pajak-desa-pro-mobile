@@ -1471,7 +1471,23 @@ class _PenerimaanPbbScreenState extends State<PenerimaanPbbScreen> with SingleTi
                                     ),
                                   ],
                                 ),
-                                if (!item.isTerbayar)
+                                if (isSelected)
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF10B981).withValues(alpha: 0.1),
+                                      borderRadius: BorderRadius.circular(10),
+                                      border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.3)),
+                                    ),
+                                    child: const Row(
+                                      children: [
+                                        Icon(Icons.check_circle_rounded, size: 16, color: Color(0xFF10B981)),
+                                        SizedBox(width: 6),
+                                        Text('Terpilih (Kolektif)', style: TextStyle(color: Color(0xFF10B981), fontWeight: FontWeight.bold, fontSize: 12)),
+                                      ],
+                                    ),
+                                  )
+                                else if (!item.isTerbayar)
                                   ElevatedButton.icon(
                                     onPressed: () => _openPayModal(item),
                                     icon: const Icon(Icons.point_of_sale_rounded, size: 18),
@@ -1523,66 +1539,120 @@ class _PenerimaanPbbScreenState extends State<PenerimaanPbbScreen> with SingleTi
         refreshWidget,
         if (_selectedDhkpIds.isNotEmpty)
           Positioned(
-            left: 16,
-            right: 16,
-            bottom: 95,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: AppColors.surfaceCard,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.15),
-                    blurRadius: 16,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-                border: Border.all(color: AppColors.primary, width: 1.5),
-              ),
-              child: Row(
-                children: [
-                  InkWell(
-                    onTap: () => setState(() => _selectedDhkpIds.clear()),
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: const BoxDecoration(
-                        color: AppColors.cardBorder,
-                        shape: BoxShape.circle,
+            left: 14,
+            right: 14,
+            bottom: 92,
+            child: TweenAnimationBuilder<double>(
+              duration: const Duration(milliseconds: 280),
+              curve: Curves.easeOutBack,
+              tween: Tween(begin: 0.85, end: 1.0),
+              builder: (context, scale, child) {
+                return Transform.scale(
+                  scale: scale,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [
+                          Color(0xFF0F172A), // Dark Slate Navy
+                          Color(0xFF064E3B), // Deep Emerald
+                        ],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
                       ),
-                      child: const Icon(Icons.close_rounded, size: 18, color: AppColors.textMuted),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          '${_selectedDhkpIds.length} NOP Dipilih (Kolektif)',
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textPrimary),
+                      borderRadius: BorderRadius.circular(28),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.15),
+                        width: 1.5,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF064E3B).withValues(alpha: 0.45),
+                          blurRadius: 20,
+                          spreadRadius: 2,
+                          offset: const Offset(0, 8),
                         ),
-                        Text(
-                          _currency.format(selectedTotal),
-                          style: const TextStyle(color: AppColors.success, fontWeight: FontWeight.bold, fontSize: 16),
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.25),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        InkWell(
+                          onTap: () => setState(() => _selectedDhkpIds.clear()),
+                          borderRadius: BorderRadius.circular(20),
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.12),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.close_rounded, size: 16, color: Colors.white70),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF10B981).withValues(alpha: 0.2),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Text(
+                                      '${_selectedDhkpIds.length} NOP TERPILIH',
+                                      style: const TextStyle(
+                                        color: Color(0xFF34D399),
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 10,
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                _currency.format(selectedTotal),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 17,
+                                  letterSpacing: 0.3,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        ElevatedButton.icon(
+                          onPressed: () => _openMultiBayarModal(selectedItems),
+                          icon: const Icon(Icons.point_of_sale_rounded, size: 18),
+                          label: Text(
+                            'BAYAR (${_selectedDhkpIds.length})',
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 0.5),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF10B981),
+                            foregroundColor: Colors.white,
+                            elevation: 4,
+                            shadowColor: const Color(0xFF10B981).withValues(alpha: 0.5),
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                          ),
                         ),
                       ],
                     ),
                   ),
-                  ElevatedButton.icon(
-                    onPressed: () => _openMultiBayarModal(selectedItems),
-                    icon: const Icon(Icons.point_of_sale_rounded, size: 18),
-                    label: Text('Bayar (${_selectedDhkpIds.length})'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.success,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                  ),
-                ],
-              ),
+                );
+              },
             ),
           ),
       ],
