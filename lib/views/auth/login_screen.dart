@@ -254,9 +254,23 @@ class _LoginScreenState extends State<LoginScreen> {
 
               // Quick Local Test Hint Card
               Center(
-                child: Text(
-                  'LENTERA (Layanan Elektronik Terpadu Pajak Daerah) v1.0 • Mobile',
-                  style: Theme.of(context).textTheme.bodySmall,
+                child: Column(
+                  children: [
+                    Text(
+                      'LENTERA (Layanan Elektronik Terpadu Pajak Daerah) v1.0 • Mobile',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Copyright © 2026 CV. Inital Dhiq Skalaloka. All rights reserved.',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            fontSize: 10,
+                            color: AppColors.textMuted,
+                            fontWeight: FontWeight.w600,
+                          ),
+                    ),
+                  ],
                 ),
               ),
             ],

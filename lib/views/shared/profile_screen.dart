@@ -492,7 +492,13 @@ class ProfileScreen extends StatelessWidget {
               title: 'Informasi Aplikasi',
               icon: Icons.info_outline_rounded,
               iconColor: AppColors.textMuted,
-              child: _buildInfoRow('Versi Aplikasi', 'v1.0.0 (Versi Produksi)'),
+              child: Column(
+                children: [
+                  _buildInfoRow('Versi Aplikasi', 'v1.0.0 (Versi Produksi)'),
+                  const SizedBox(height: 8),
+                  _buildInfoRow('Hak Cipta / Copyright', 'CV. Inital Dhiq Skalaloka'),
+                ],
+              ),
             ),
             const SizedBox(height: 28),
 
@@ -511,6 +517,20 @@ class ProfileScreen extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Copyright Text
+            const Center(
+              child: Text(
+                'Copyright © 2026 CV. Inital Dhiq Skalaloka. All rights reserved.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 11,
+                  color: AppColors.textMuted,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),

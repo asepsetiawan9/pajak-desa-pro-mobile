@@ -58,56 +58,75 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 110,
-              height: 110,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.4),
-                    blurRadius: 25,
-                    spreadRadius: 2,
-                    offset: const Offset(0, 8),
+      body: Stack(
+        children: [
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 110,
+                  height: 110,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primary.withValues(alpha: 0.4),
+                        blurRadius: 25,
+                        spreadRadius: 2,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(24),
-                child: Image.asset(
-                  'assets/images/app_icon.png',
-                  fit: BoxFit.cover,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(24),
+                    child: Image.asset(
+                      'assets/images/app_icon.png',
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  'Lentera Pajak Mobile',
+                  style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1,
+                      ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Layanan Elektronik Terpadu Pajak Daerah',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: AppColors.accent,
+                        fontWeight: FontWeight.w500,
+                      ),
+                ),
+                const SizedBox(height: 48),
+                const SpinKitFadingCube(
+                  color: AppColors.primary,
+                  size: 32.0,
+                ),
+              ],
+            ),
+          ),
+          const Positioned(
+            bottom: 24,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Text(
+                'Copyright © 2026 CV. Inital Dhiq Skalaloka',
+                style: TextStyle(
+                  color: AppColors.textMuted,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
-            const SizedBox(height: 24),
-            Text(
-              'Lentera Pajak Mobile',
-              style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1,
-                  ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              'Layanan Elektronik Terpadu Pajak Daerah',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.accent,
-                    fontWeight: FontWeight.w500,
-                  ),
-            ),
-            const SizedBox(height: 48),
-            const SpinKitFadingCube(
-              color: AppColors.primary,
-              size: 32.0,
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

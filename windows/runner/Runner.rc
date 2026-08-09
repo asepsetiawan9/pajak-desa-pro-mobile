@@ -89,11 +89,11 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.lentera.pajak" "\0"
-            VALUE "FileDescription", "pajak_mobile" "\0"
+            VALUE "CompanyName", "CV. Inital Dhiq Skalaloka" "\0"
+            VALUE "FileDescription", "Lentera Pajak Mobile" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "pajak_mobile" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 com.lentera.pajak. All rights reserved." "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2026 CV. Inital Dhiq Skalaloka. All rights reserved." "\0"
             VALUE "OriginalFilename", "pajak_mobile.exe" "\0"
             VALUE "ProductName", "pajak_mobile" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
