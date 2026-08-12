@@ -22,7 +22,8 @@ class DhkpProvider extends ChangeNotifier {
   String _searchQuery = '';
   String _selectedDusun = 'ALL';
   String _selectedStatus = 'ALL'; // 'ALL', 'terbayar', 'belum_bayar'
-  String _sortBy = 'default'; // 'default', 'nama_asc', 'nama_desc', 'nominal_desc', 'nominal_asc'
+  String _sortBy =
+      'default'; // 'default', 'nama_asc', 'nama_desc', 'nominal_desc', 'nominal_asc'
 
   Timer? _debounceTimer;
 
@@ -147,14 +148,17 @@ class DhkpProvider extends ChangeNotifier {
           }
         }
 
-        final List<DhkpModel> parsedRows = rawList.map((item) {
-          if (item is Map<String, dynamic>) {
-            return DhkpModel.fromJson(item);
-          } else if (item is Map) {
-            return DhkpModel.fromJson(Map<String, dynamic>.from(item));
-          }
-          return null;
-        }).whereType<DhkpModel>().toList();
+        final List<DhkpModel> parsedRows = rawList
+            .map((item) {
+              if (item is Map<String, dynamic>) {
+                return DhkpModel.fromJson(item);
+              } else if (item is Map) {
+                return DhkpModel.fromJson(Map<String, dynamic>.from(item));
+              }
+              return null;
+            })
+            .whereType<DhkpModel>()
+            .toList();
 
         if (metaData != null) {
           _currentPage = metaData['current_page'] ?? page;
@@ -247,9 +251,13 @@ class DhkpProvider extends ChangeNotifier {
 
     // 3. Client-side Sorting
     if (_sortBy == 'nama_asc') {
-      temp.sort((a, b) => a.namaWp.toLowerCase().compareTo(b.namaWp.toLowerCase()));
+      temp.sort(
+        (a, b) => a.namaWp.toLowerCase().compareTo(b.namaWp.toLowerCase()),
+      );
     } else if (_sortBy == 'nama_desc') {
-      temp.sort((a, b) => b.namaWp.toLowerCase().compareTo(a.namaWp.toLowerCase()));
+      temp.sort(
+        (a, b) => b.namaWp.toLowerCase().compareTo(a.namaWp.toLowerCase()),
+      );
     } else if (_sortBy == 'nominal_desc') {
       temp.sort((a, b) => b.pbbTerutang.compareTo(a.pbbTerutang));
     } else if (_sortBy == 'nominal_asc') {

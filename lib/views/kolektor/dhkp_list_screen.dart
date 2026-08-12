@@ -18,7 +18,11 @@ class DhkpListScreen extends StatefulWidget {
 class _DhkpListScreenState extends State<DhkpListScreen> {
   final _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  final NumberFormat _currency = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
+  final NumberFormat _currency = NumberFormat.currency(
+    locale: 'id_ID',
+    symbol: 'Rp ',
+    decimalDigits: 0,
+  );
 
   @override
   void initState() {
@@ -33,7 +37,8 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 250) {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 250) {
       final auth = Provider.of<AuthProvider>(context, listen: false);
       final dhkp = Provider.of<DhkpProvider>(context, listen: false);
       if (dhkp.hasMore && !dhkp.isLoadingMore && !dhkp.isLoading) {
@@ -66,7 +71,11 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
     }
   }
 
-  void _openFilterBottomSheet(DhkpProvider provider, dynamic user, List<String> allowedDusuns) {
+  void _openFilterBottomSheet(
+    DhkpProvider provider,
+    dynamic user,
+    List<String> allowedDusuns,
+  ) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -109,11 +118,16 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
                     children: [
                       Row(
                         children: [
-                          const Icon(Icons.tune_rounded, color: AppColors.primary, size: 22),
+                          const Icon(
+                            Icons.tune_rounded,
+                            color: AppColors.primary,
+                            size: 22,
+                          ),
                           const SizedBox(width: 8),
                           Text(
                             'Filter & Pengurutan',
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(
                                   fontWeight: FontWeight.bold,
                                   color: AppColors.textPrimary,
                                 ),
@@ -121,21 +135,31 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
                           if (activeCount > 0) ...[
                             const SizedBox(width: 8),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
                                 color: AppColors.primary,
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Text(
                                 '$activeCount Filter',
-                                style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ],
                         ],
                       ),
                       IconButton(
-                        icon: const Icon(Icons.close_rounded, color: AppColors.textMuted),
+                        icon: const Icon(
+                          Icons.close_rounded,
+                          color: AppColors.textMuted,
+                        ),
                         onPressed: () => Navigator.pop(context),
                       ),
                     ],
@@ -145,16 +169,41 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
                   // Section 1: Status Pembayaran
                   Text(
                     'Status Pembayaran',
-                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
                   ),
                   const SizedBox(height: 10),
                   Row(
                     children: [
-                      _buildModalStatusCard('ALL', 'Semua', Icons.all_inclusive_rounded, provider, user, setModalState),
+                      _buildModalStatusCard(
+                        'ALL',
+                        'Semua',
+                        Icons.all_inclusive_rounded,
+                        provider,
+                        user,
+                        setModalState,
+                      ),
                       const SizedBox(width: 8),
-                      _buildModalStatusCard('belum_bayar', 'Belum Bayar', Icons.pending_actions_rounded, provider, user, setModalState),
+                      _buildModalStatusCard(
+                        'belum_bayar',
+                        'Belum Bayar',
+                        Icons.pending_actions_rounded,
+                        provider,
+                        user,
+                        setModalState,
+                      ),
                       const SizedBox(width: 8),
-                      _buildModalStatusCard('terbayar', 'Terbayar', Icons.task_alt_rounded, provider, user, setModalState),
+                      _buildModalStatusCard(
+                        'terbayar',
+                        'Terbayar',
+                        Icons.task_alt_rounded,
+                        provider,
+                        user,
+                        setModalState,
+                      ),
                     ],
                   ),
                   const SizedBox(height: 20),
@@ -163,16 +212,32 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
                   if (allowedDusuns.isNotEmpty) ...[
                     Text(
                       'Wilayah Dusun',
-                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary,
+                      ),
                     ),
                     const SizedBox(height: 10),
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
                       children: [
-                        _buildModalDusunChip('ALL', 'Semua Dusun', provider, user, setModalState),
+                        _buildModalDusunChip(
+                          'ALL',
+                          'Semua Dusun',
+                          provider,
+                          user,
+                          setModalState,
+                        ),
                         for (final dusun in allowedDusuns)
-                          _buildModalDusunChip(dusun, 'Dusun $dusun', provider, user, setModalState),
+                          _buildModalDusunChip(
+                            dusun,
+                            'Dusun $dusun',
+                            provider,
+                            user,
+                            setModalState,
+                          ),
                       ],
                     ),
                     const SizedBox(height: 20),
@@ -181,18 +246,57 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
                   // Section 3: Urutkan Data (Sorting)
                   Text(
                     'Urutkan Data',
-                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
                   ),
                   const SizedBox(height: 10),
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
                     children: [
-                      _buildModalSortChip('default', 'Bawaan', Icons.sort_rounded, provider, user, setModalState),
-                      _buildModalSortChip('nama_asc', 'Nama (A - Z)', Icons.sort_by_alpha_rounded, provider, user, setModalState),
-                      _buildModalSortChip('nama_desc', 'Nama (Z - A)', Icons.sort_by_alpha_rounded, provider, user, setModalState),
-                      _buildModalSortChip('nominal_desc', 'Nominal Terbesar', Icons.arrow_downward_rounded, provider, user, setModalState),
-                      _buildModalSortChip('nominal_asc', 'Nominal Terkecil', Icons.arrow_upward_rounded, provider, user, setModalState),
+                      _buildModalSortChip(
+                        'default',
+                        'Bawaan',
+                        Icons.sort_rounded,
+                        provider,
+                        user,
+                        setModalState,
+                      ),
+                      _buildModalSortChip(
+                        'nama_asc',
+                        'Nama (A - Z)',
+                        Icons.sort_by_alpha_rounded,
+                        provider,
+                        user,
+                        setModalState,
+                      ),
+                      _buildModalSortChip(
+                        'nama_desc',
+                        'Nama (Z - A)',
+                        Icons.sort_by_alpha_rounded,
+                        provider,
+                        user,
+                        setModalState,
+                      ),
+                      _buildModalSortChip(
+                        'nominal_desc',
+                        'Nominal Terbesar',
+                        Icons.arrow_downward_rounded,
+                        provider,
+                        user,
+                        setModalState,
+                      ),
+                      _buildModalSortChip(
+                        'nominal_asc',
+                        'Nominal Terkecil',
+                        Icons.arrow_upward_rounded,
+                        provider,
+                        user,
+                        setModalState,
+                      ),
                     ],
                   ),
                   const SizedBox(height: 24),
@@ -212,7 +316,9 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 12),
                             side: const BorderSide(color: AppColors.cardBorder),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                             foregroundColor: AppColors.textSecondary,
                           ),
                         ),
@@ -227,7 +333,9 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
                             padding: const EdgeInsets.symmetric(vertical: 12),
                             backgroundColor: AppColors.primary,
                             foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                             elevation: 0,
                           ),
                         ),
@@ -243,13 +351,20 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
     );
   }
 
-  Widget _buildModalStatusCard(String value, String label, IconData icon, DhkpProvider provider, dynamic user, StateSetter setModalState) {
+  Widget _buildModalStatusCard(
+    String value,
+    String label,
+    IconData icon,
+    DhkpProvider provider,
+    dynamic user,
+    StateSetter setModalState,
+  ) {
     final isSelected = provider.selectedStatus == value;
     final color = value == 'terbayar'
         ? AppColors.success
         : value == 'belum_bayar'
-            ? AppColors.danger
-            : AppColors.primary;
+        ? AppColors.danger
+        : AppColors.primary;
 
     return Expanded(
       child: InkWell(
@@ -262,7 +377,9 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
           decoration: BoxDecoration(
-            color: isSelected ? color.withValues(alpha: 0.12) : AppColors.surfaceCard,
+            color: isSelected
+                ? color.withValues(alpha: 0.12)
+                : AppColors.surfaceCard,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: isSelected ? color : AppColors.cardBorder,
@@ -271,7 +388,11 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
           ),
           child: Column(
             children: [
-              Icon(icon, size: 20, color: isSelected ? color : AppColors.textMuted),
+              Icon(
+                icon,
+                size: 20,
+                color: isSelected ? color : AppColors.textMuted,
+              ),
               const SizedBox(height: 6),
               Text(
                 label,
@@ -288,7 +409,13 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
     );
   }
 
-  Widget _buildModalDusunChip(String value, String label, DhkpProvider provider, dynamic user, StateSetter setModalState) {
+  Widget _buildModalDusunChip(
+    String value,
+    String label,
+    DhkpProvider provider,
+    dynamic user,
+    StateSetter setModalState,
+  ) {
     final isSelected = provider.selectedDusun == value;
     return ChoiceChip(
       selected: isSelected,
@@ -305,7 +432,9 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
       ),
       selectedColor: AppColors.primary,
       backgroundColor: AppColors.surfaceCard,
-      side: BorderSide(color: isSelected ? AppColors.primary : AppColors.cardBorder),
+      side: BorderSide(
+        color: isSelected ? AppColors.primary : AppColors.cardBorder,
+      ),
       onSelected: (_) {
         setModalState(() {
           provider.setSelectedDusun(value, currentUser: user);
@@ -314,12 +443,23 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
     );
   }
 
-  Widget _buildModalSortChip(String value, String label, IconData icon, DhkpProvider provider, dynamic user, StateSetter setModalState) {
+  Widget _buildModalSortChip(
+    String value,
+    String label,
+    IconData icon,
+    DhkpProvider provider,
+    dynamic user,
+    StateSetter setModalState,
+  ) {
     final isSelected = provider.sortBy == value;
     return ChoiceChip(
       selected: isSelected,
       label: Text(label),
-      avatar: Icon(icon, size: 14, color: isSelected ? Colors.white : AppColors.textMuted),
+      avatar: Icon(
+        icon,
+        size: 14,
+        color: isSelected ? Colors.white : AppColors.textMuted,
+      ),
       labelStyle: TextStyle(
         fontSize: 11,
         color: isSelected ? Colors.white : AppColors.textSecondary,
@@ -327,7 +467,9 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
       ),
       selectedColor: AppColors.info,
       backgroundColor: AppColors.surfaceCard,
-      side: BorderSide(color: isSelected ? AppColors.info : AppColors.cardBorder),
+      side: BorderSide(
+        color: isSelected ? AppColors.info : AppColors.cardBorder,
+      ),
       onSelected: (_) {
         setModalState(() {
           provider.setSortBy(value, currentUser: user);
@@ -372,6 +514,7 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Search Input Row + Filter Modal Trigger Button
+              SizedBox(height: 25),
               Row(
                 children: [
                   // Search Input
@@ -380,26 +523,48 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
                       decoration: BoxDecoration(
                         color: AppColors.surfaceCard,
                         borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: AppColors.inputBorder.withValues(alpha: 0.5)),
+                        border: Border.all(
+                          color: AppColors.inputBorder.withValues(alpha: 0.5),
+                        ),
                       ),
                       child: TextField(
                         controller: _searchController,
-                        style: const TextStyle(fontSize: 13, color: AppColors.textPrimary),
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: AppColors.textPrimary,
+                        ),
                         onChanged: (val) {
                           dhkpProvider.setSearchQuery(val, currentUser: user);
                         },
                         decoration: InputDecoration(
                           hintText: 'Cari NOP atau Nama Wajib Pajak...',
-                          hintStyle: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                          hintStyle: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textMuted,
+                          ),
                           border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                          prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textMuted, size: 20),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 12,
+                          ),
+                          prefixIcon: const Icon(
+                            Icons.search_rounded,
+                            color: AppColors.textMuted,
+                            size: 20,
+                          ),
                           suffixIcon: _searchController.text.isNotEmpty
                               ? IconButton(
-                                  icon: const Icon(Icons.cancel_rounded, color: AppColors.textMuted, size: 18),
+                                  icon: const Icon(
+                                    Icons.cancel_rounded,
+                                    color: AppColors.textMuted,
+                                    size: 18,
+                                  ),
                                   onPressed: () {
                                     _searchController.clear();
-                                    dhkpProvider.setSearchQuery('', currentUser: user);
+                                    dhkpProvider.setSearchQuery(
+                                      '',
+                                      currentUser: user,
+                                    );
                                   },
                                 )
                               : null,
@@ -414,23 +579,35 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
                     clipBehavior: Clip.none,
                     children: [
                       Material(
-                        color: dhkpProvider.hasActiveFilters ? AppColors.primary.withValues(alpha: 0.12) : AppColors.surfaceCard,
+                        color: dhkpProvider.hasActiveFilters
+                            ? AppColors.primary.withValues(alpha: 0.12)
+                            : AppColors.surfaceCard,
                         borderRadius: BorderRadius.circular(14),
                         child: InkWell(
-                          onTap: () => _openFilterBottomSheet(dhkpProvider, user, allowedDusuns),
+                          onTap: () => _openFilterBottomSheet(
+                            dhkpProvider,
+                            user,
+                            allowedDusuns,
+                          ),
                           borderRadius: BorderRadius.circular(14),
                           child: Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(14),
                               border: Border.all(
-                                color: dhkpProvider.hasActiveFilters ? AppColors.primary : AppColors.inputBorder.withValues(alpha: 0.5),
+                                color: dhkpProvider.hasActiveFilters
+                                    ? AppColors.primary
+                                    : AppColors.inputBorder.withValues(
+                                        alpha: 0.5,
+                                      ),
                                 width: dhkpProvider.hasActiveFilters ? 1.5 : 1,
                               ),
                             ),
                             child: Icon(
                               Icons.tune_rounded,
-                              color: dhkpProvider.hasActiveFilters ? AppColors.primary : AppColors.textSecondary,
+                              color: dhkpProvider.hasActiveFilters
+                                  ? AppColors.primary
+                                  : AppColors.textSecondary,
                               size: 22,
                             ),
                           ),
@@ -476,8 +653,18 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
                 child: Row(
                   children: [
                     _buildSegmentedTab('ALL', 'Semua', dhkpProvider, user),
-                    _buildSegmentedTab('belum_bayar', 'Belum Bayar', dhkpProvider, user),
-                    _buildSegmentedTab('terbayar', 'Terbayar', dhkpProvider, user),
+                    _buildSegmentedTab(
+                      'belum_bayar',
+                      'Belum Bayar',
+                      dhkpProvider,
+                      user,
+                    ),
+                    _buildSegmentedTab(
+                      'terbayar',
+                      'Terbayar',
+                      dhkpProvider,
+                      user,
+                    ),
                   ],
                 ),
               ),
@@ -492,7 +679,12 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
                       _buildDusunPill('ALL', 'Semua Dusun', dhkpProvider, user),
                       for (final dusun in allowedDusuns) ...[
                         const SizedBox(width: 8),
-                        _buildDusunPill(dusun, 'Dusun $dusun', dhkpProvider, user),
+                        _buildDusunPill(
+                          dusun,
+                          'Dusun $dusun',
+                          dhkpProvider,
+                          user,
+                        ),
                       ],
                     ],
                   ),
@@ -508,33 +700,51 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
                     children: [
                       const Text(
                         'Filter Aktif: ',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textMuted),
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textMuted,
+                        ),
                       ),
                       if (dhkpProvider.searchQuery.isNotEmpty) ...[
-                        _buildActiveFilterChip('Search: "${dhkpProvider.searchQuery}"', () {
-                          _searchController.clear();
-                          dhkpProvider.setSearchQuery('', currentUser: user);
-                        }),
+                        _buildActiveFilterChip(
+                          'Search: "${dhkpProvider.searchQuery}"',
+                          () {
+                            _searchController.clear();
+                            dhkpProvider.setSearchQuery('', currentUser: user);
+                          },
+                        ),
                         const SizedBox(width: 6),
                       ],
                       if (dhkpProvider.selectedStatus != 'ALL') ...[
                         _buildActiveFilterChip(
-                          dhkpProvider.selectedStatus == 'terbayar' ? 'Status: Terbayar' : 'Status: Belum Bayar',
-                          () => dhkpProvider.setSelectedStatus('ALL', currentUser: user),
+                          dhkpProvider.selectedStatus == 'terbayar'
+                              ? 'Status: Terbayar'
+                              : 'Status: Belum Bayar',
+                          () => dhkpProvider.setSelectedStatus(
+                            'ALL',
+                            currentUser: user,
+                          ),
                         ),
                         const SizedBox(width: 6),
                       ],
                       if (dhkpProvider.selectedDusun != 'ALL') ...[
                         _buildActiveFilterChip(
                           'Dusun: ${dhkpProvider.selectedDusun}',
-                          () => dhkpProvider.setSelectedDusun('ALL', currentUser: user),
+                          () => dhkpProvider.setSelectedDusun(
+                            'ALL',
+                            currentUser: user,
+                          ),
                         ),
                         const SizedBox(width: 6),
                       ],
                       if (dhkpProvider.sortBy != 'default') ...[
                         _buildActiveFilterChip(
                           _getSortLabel(dhkpProvider.sortBy),
-                          () => dhkpProvider.setSortBy('default', currentUser: user),
+                          () => dhkpProvider.setSortBy(
+                            'default',
+                            currentUser: user,
+                          ),
                         ),
                         const SizedBox(width: 6),
                       ],
@@ -544,10 +754,17 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
                           dhkpProvider.resetFilters(currentUser: user);
                         },
                         child: const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
                           child: Text(
                             'Reset Semua',
-                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.danger),
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.danger,
+                            ),
                           ),
                         ),
                       ),
@@ -581,15 +798,20 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
                         ? 'Menampilkan ${dhkpProvider.filteredRows.length} dari ${dhkpProvider.totalRows} SPPT'
                         : 'Menampilkan ${dhkpProvider.filteredRows.length} SPPT',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.textSecondary,
-                          fontWeight: FontWeight.w600,
-                        ),
+                      color: AppColors.textSecondary,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ],
               ),
               IconButton(
-                icon: const Icon(Icons.refresh_rounded, size: 20, color: AppColors.primary),
-                onPressed: () => dhkpProvider.fetchDhkp(isRefresh: true, currentUser: user),
+                icon: const Icon(
+                  Icons.refresh_rounded,
+                  size: 20,
+                  color: AppColors.primary,
+                ),
+                onPressed: () =>
+                    dhkpProvider.fetchDhkp(isRefresh: true, currentUser: user),
                 tooltip: 'Muat Ulang Data',
               ),
             ],
@@ -603,138 +825,174 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
                   child: CircularProgressIndicator(color: AppColors.primary),
                 )
               : dhkpProvider.errorMessage != null
-                  ? Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(24.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.error_outline_rounded, size: 56, color: AppColors.danger),
-                            const SizedBox(height: 12),
-                            Text(
-                              'Gagal Memuat Data DHKP',
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.textPrimary,
-                                  ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              dhkpProvider.errorMessage!,
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
-                            ),
-                            const SizedBox(height: 16),
-                            ElevatedButton.icon(
-                              onPressed: () => dhkpProvider.fetchDhkp(isRefresh: true, currentUser: user),
-                              icon: const Icon(Icons.refresh, size: 18),
-                              label: const Text('Coba Lagi'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.primary,
-                                foregroundColor: Colors.white,
-                              ),
-                            ),
-                          ],
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.error_outline_rounded,
+                          size: 56,
+                          color: AppColors.danger,
                         ),
-                      ),
-                    )
-              : dhkpProvider.filteredRows.isEmpty
-                  ? Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(24.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.search_off_rounded, size: 64, color: AppColors.textMuted.withValues(alpha: 0.5)),
-                            const SizedBox(height: 12),
-                            Text(
-                              'Data SPPT Tidak Ditemukan',
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.textPrimary,
-                                  ),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              dhkpProvider.allRows.isEmpty
-                                  ? 'Belum ada data DHKP tersimpan atau sesi koneksi perlu diperbarui.'
-                                  : 'Tidak ada data SPPT yang sesuai dengan kriteria pencarian / filter Anda.',
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
-                            ),
-                            const SizedBox(height: 16),
-                            ElevatedButton.icon(
-                              onPressed: () {
-                                _searchController.clear();
-                                dhkpProvider.resetFilters(currentUser: user);
-                              },
-                              icon: const Icon(Icons.refresh, size: 18),
-                              label: Text(dhkpProvider.allRows.isEmpty ? 'Muat Data DHKP' : 'Reset Filter & Muat Ulang'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.primary,
-                                foregroundColor: Colors.white,
+                        const SizedBox(height: 12),
+                        Text(
+                          'Gagal Memuat Data DHKP',
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textPrimary,
                               ),
-                            ),
-                          ],
                         ),
-                      ),
-                    )
-                  : RefreshIndicator(
-                      onRefresh: () => dhkpProvider.fetchDhkp(isRefresh: true, currentUser: user),
-                      color: AppColors.primary,
-                      child: ListView.builder(
-                        controller: _scrollController,
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        padding: const EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 100),
-                        itemCount: dhkpProvider.filteredRows.length + (dhkpProvider.hasMore || dhkpProvider.isLoadingMore ? 1 : 0),
-                        itemBuilder: (context, index) {
-                          if (index < dhkpProvider.filteredRows.length) {
-                            final item = dhkpProvider.filteredRows[index];
-                            return _buildDhkpCard(item);
-                          }
-                          return Container(
-                            padding: const EdgeInsets.symmetric(vertical: 20),
-                            alignment: Alignment.center,
-                            child: dhkpProvider.isLoadingMore
-                                ? const Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      SizedBox(
-                                        width: 18,
-                                        height: 18,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2.5,
-                                          color: AppColors.primary,
-                                        ),
-                                      ),
-                                      SizedBox(width: 12),
-                                      Text(
-                                        'Memuat data SPPT berikutnya...',
-                                        style: TextStyle(
-                                          color: AppColors.textMuted,
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ],
-                                  )
-                                : const SizedBox.shrink(),
-                          );
-                        },
-                      ),
+                        const SizedBox(height: 8),
+                        Text(
+                          dhkpProvider.errorMessage!,
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: AppColors.textSecondary),
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton.icon(
+                          onPressed: () => dhkpProvider.fetchDhkp(
+                            isRefresh: true,
+                            currentUser: user,
+                          ),
+                          icon: const Icon(Icons.refresh, size: 18),
+                          label: const Text('Coba Lagi'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: Colors.white,
+                          ),
+                        ),
+                      ],
                     ),
+                  ),
+                )
+              : dhkpProvider.filteredRows.isEmpty
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.search_off_rounded,
+                          size: 64,
+                          color: AppColors.textMuted.withValues(alpha: 0.5),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          'Data SPPT Tidak Ditemukan',
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textPrimary,
+                              ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          dhkpProvider.allRows.isEmpty
+                              ? 'Belum ada data DHKP tersimpan atau sesi koneksi perlu diperbarui.'
+                              : 'Tidak ada data SPPT yang sesuai dengan kriteria pencarian / filter Anda.',
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: AppColors.textSecondary),
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            _searchController.clear();
+                            dhkpProvider.resetFilters(currentUser: user);
+                          },
+                          icon: const Icon(Icons.refresh, size: 18),
+                          label: Text(
+                            dhkpProvider.allRows.isEmpty
+                                ? 'Muat Data DHKP'
+                                : 'Reset Filter & Muat Ulang',
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              : RefreshIndicator(
+                  onRefresh: () => dhkpProvider.fetchDhkp(
+                    isRefresh: true,
+                    currentUser: user,
+                  ),
+                  color: AppColors.primary,
+                  child: ListView.builder(
+                    controller: _scrollController,
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.only(
+                      left: 16,
+                      right: 16,
+                      top: 4,
+                      bottom: 100,
+                    ),
+                    itemCount:
+                        dhkpProvider.filteredRows.length +
+                        (dhkpProvider.hasMore || dhkpProvider.isLoadingMore
+                            ? 1
+                            : 0),
+                    itemBuilder: (context, index) {
+                      if (index < dhkpProvider.filteredRows.length) {
+                        final item = dhkpProvider.filteredRows[index];
+                        return _buildDhkpCard(item);
+                      }
+                      return Container(
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        alignment: Alignment.center,
+                        child: dhkpProvider.isLoadingMore
+                            ? const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2.5,
+                                      color: AppColors.primary,
+                                    ),
+                                  ),
+                                  SizedBox(width: 12),
+                                  Text(
+                                    'Memuat data SPPT berikutnya...',
+                                    style: TextStyle(
+                                      color: AppColors.textMuted,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : const SizedBox.shrink(),
+                      );
+                    },
+                  ),
+                ),
         ),
       ],
     );
   }
 
-  Widget _buildSegmentedTab(String value, String label, DhkpProvider provider, dynamic user) {
+  Widget _buildSegmentedTab(
+    String value,
+    String label,
+    DhkpProvider provider,
+    dynamic user,
+  ) {
     final isSelected = provider.selectedStatus == value;
     final color = value == 'terbayar'
         ? AppColors.success
         : value == 'belum_bayar'
-            ? AppColors.danger
-            : AppColors.primary;
+        ? AppColors.danger
+        : AppColors.primary;
 
     return Expanded(
       child: GestureDetector(
@@ -769,7 +1027,12 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
     );
   }
 
-  Widget _buildDusunPill(String value, String label, DhkpProvider provider, dynamic user) {
+  Widget _buildDusunPill(
+    String value,
+    String label,
+    DhkpProvider provider,
+    dynamic user,
+  ) {
     final isSelected = provider.selectedDusun == value;
     return InkWell(
       onTap: () => provider.setSelectedDusun(value, currentUser: user),
@@ -820,12 +1083,20 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
         children: [
           Text(
             label,
-            style: const TextStyle(fontSize: 10, color: AppColors.primary, fontWeight: FontWeight.w600),
+            style: const TextStyle(
+              fontSize: 10,
+              color: AppColors.primary,
+              fontWeight: FontWeight.w600,
+            ),
           ),
           const SizedBox(width: 4),
           InkWell(
             onTap: onRemove,
-            child: const Icon(Icons.close_rounded, size: 12, color: AppColors.primary),
+            child: const Icon(
+              Icons.close_rounded,
+              size: 12,
+              color: AppColors.primary,
+            ),
           ),
         ],
       ),
@@ -865,33 +1136,47 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.surfaceCard,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.location_on_outlined, size: 12, color: AppColors.textMuted),
+                      const Icon(
+                        Icons.location_on_outlined,
+                        size: 12,
+                        color: AppColors.textMuted,
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         'Dusun ${item.dusun} (RT ${item.rt ?? '-'}/RW ${item.rw ?? '-'})',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppColors.textSecondary,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w500,
-                            ),
+                          color: AppColors.textSecondary,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ],
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
-                    color: item.isTerbayar ? AppColors.successBg : AppColors.dangerBg,
+                    color: item.isTerbayar
+                        ? AppColors.successBg
+                        : AppColors.dangerBg,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: item.isTerbayar ? AppColors.success : AppColors.danger,
+                      color: item.isTerbayar
+                          ? AppColors.success
+                          : AppColors.danger,
                       width: 1,
                     ),
                   ),
@@ -899,15 +1184,21 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        item.isTerbayar ? Icons.check_circle_outlined : Icons.pending_outlined,
+                        item.isTerbayar
+                            ? Icons.check_circle_outlined
+                            : Icons.pending_outlined,
                         size: 13,
-                        color: item.isTerbayar ? AppColors.success : AppColors.danger,
+                        color: item.isTerbayar
+                            ? AppColors.success
+                            : AppColors.danger,
                       ),
                       const SizedBox(width: 4),
                       Text(
                         item.isTerbayar ? 'TERBAYAR' : 'BELUM BAYAR',
                         style: TextStyle(
-                          color: item.isTerbayar ? AppColors.success : AppColors.danger,
+                          color: item.isTerbayar
+                              ? AppColors.success
+                              : AppColors.danger,
                           fontWeight: FontWeight.bold,
                           fontSize: 11,
                         ),
@@ -923,9 +1214,9 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
             Text(
               item.namaWp,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
             ),
             const SizedBox(height: 4),
 
@@ -933,10 +1224,10 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
             Text(
               'NOP: ${item.nop}',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.accent,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13,
-                  ),
+                color: AppColors.accent,
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+              ),
             ),
             const SizedBox(height: 12),
 
@@ -953,13 +1244,49 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     const SizedBox(height: 4),
+                    Container(
+                      // 1. Mengatur jarak bagian dalam (padding) agar teks tidak menempel ke tepi container
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+
+                      // 2. Mengatur dekorasi background dan kelengkungan sudut (border radius)
+                      decoration: BoxDecoration(
+                        // Warna background: Luar Desa (Merah transparan), Dalam Desa (Hijau transparan)
+                        color: item.domisili == 'LUAR_DESA'
+                            ? Colors.red.withAlpha(
+                                30,
+                              ) // Angka 30 membuat warna merahnya soft/muda
+                            : Colors.green.withAlpha(
+                                30,
+                              ), // Angka 30 membuat warna hijaunya soft/muda
+                        borderRadius: BorderRadius.circular(
+                          6,
+                        ), // Membuat sudut container melengkung
+                      ),
+
+                      // 3. Isi Container berupa teks yang sudah kita buat sebelumnya
+                      child: Text(
+                        'Domisili: ${item.domisili?.replaceAll('_', ' ') ?? ''}',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: item.domisili == 'LUAR_DESA'
+                              ? Colors.red
+                              : Colors.green,
+                          fontWeight: FontWeight
+                              .bold, // Dibuat tebal agar lebih kontras dan mudah dibaca
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 4),
                     Text(
                       _currency.format(item.pbbTerutang),
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            color: AppColors.textPrimary,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
                     ),
                   ],
                 ),
@@ -973,8 +1300,13 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.success,
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 8,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                   ),
               ],

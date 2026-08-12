@@ -13,6 +13,7 @@ class DhkpModel {
   final double denda;
   final double totalBayar;
   final String? tglBayar;
+  final String? domisili;
   final String? kolektorNama;
 
   DhkpModel({
@@ -30,6 +31,7 @@ class DhkpModel {
     required this.denda,
     required this.totalBayar,
     this.tglBayar,
+    this.domisili,
     this.kolektorNama,
   });
 
@@ -37,6 +39,7 @@ class DhkpModel {
     final s = statusBayar.toUpperCase();
     return s == 'LUNAS' || s == 'TERBAYAR';
   }
+
   bool get isLunas => isTerbayar;
 
   factory DhkpModel.fromJson(Map<String, dynamic> json) {
@@ -46,7 +49,11 @@ class DhkpModel {
       return double.tryParse(val.toString()) ?? 0.0;
     }
 
-    String status = (json['status_bayar'] ?? (json['status'] == 1 ? 'LUNAS' : 'BELUM_BAYAR')).toString().toUpperCase();
+    String status =
+        (json['status_bayar'] ??
+                (json['status'] == 1 ? 'LUNAS' : 'BELUM_BAYAR'))
+            .toString()
+            .toUpperCase();
     if (status == 'TERBAYAR') status = 'LUNAS';
 
     String? rtVal;
@@ -76,20 +83,29 @@ class DhkpModel {
     }
 
     return DhkpModel(
-      id: json['id'] is int ? json['id'] : int.tryParse(json['id']?.toString() ?? '0') ?? 0,
+      id: json['id'] is int
+          ? json['id']
+          : int.tryParse(json['id']?.toString() ?? '0') ?? 0,
       nop: json['nop']?.toString() ?? '',
-      namaWp: json['nama_wp']?.toString() ?? json['nama']?.toString() ?? 'Tanpa Nama',
+      namaWp:
+          json['nama_wp']?.toString() ??
+          json['nama']?.toString() ??
+          'Tanpa Nama',
       alamatWp: json['alamat_wp']?.toString() ?? json['alamat']?.toString(),
       dusun: json['dusun']?.toString() ?? '',
       rw: rwVal,
       rt: rtVal,
       luasBumi: parseDouble(json['luas_bumi']),
       luasBgn: parseDouble(json['luas_bangunan'] ?? json['luas_bgn']),
-      pbbTerutang: parseDouble(json['ketetapan_pbb'] ?? json['pbb_terutang'] ?? json['pbb']),
+      pbbTerutang: parseDouble(
+        json['ketetapan_pbb'] ?? json['pbb_terutang'] ?? json['pbb'],
+      ),
       statusBayar: status,
       denda: parseDouble(json['denda']),
       totalBayar: parseDouble(json['total_bayar'] ?? json['total']),
-      tglBayar: json['tanggal_bayar']?.toString() ?? json['tgl_bayar']?.toString(),
+      tglBayar:
+          json['tanggal_bayar']?.toString() ?? json['tgl_bayar']?.toString(),
+      domisili: json['domisili']?.toString(),
       kolektorNama: collectorName,
     );
   }
