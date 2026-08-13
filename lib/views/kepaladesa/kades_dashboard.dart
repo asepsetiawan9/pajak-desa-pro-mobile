@@ -9,6 +9,7 @@ import '../../providers/setoran_kecamatan_provider.dart';
 import 'kades_report_screen.dart';
 import 'kades_setoran_screen.dart';
 import 'widgets/buat_setoran_modal.dart';
+import 'widgets/setoran_detail_modal.dart';
 import '../auth/login_screen.dart';
 
 class KadesDashboard extends StatefulWidget {
@@ -471,43 +472,53 @@ class _KadesDashboardState extends State<KadesDashboard> {
                     : item.isDitolak
                         ? AppColors.danger
                         : AppColors.warning;
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 8),
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: AppColors.surfaceCard,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              _currency.format(item.nominal),
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.primary),
-                            ),
-                            Text(
-                              '${item.tanggalSetor ?? "-"} · ${item.namaPenyetor ?? "Petugas"}',
-                              style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
-                            ),
-                          ],
+                return InkWell(
+                  onTap: () {
+                    SetoranDetailModal.show(
+                      context,
+                      item: item,
+                      onRefreshNeeded: _loadDashboardData,
+                    );
+                  },
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceCard,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                _currency.format(item.nominal),
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.primary),
+                              ),
+                              Text(
+                                '${item.tanggalSetor ?? "-"} · ${item.namaPenyetor ?? "Petugas"}',
+                                style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: statusColor.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: statusColor.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            item.status ?? 'PENDING',
+                            style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: statusColor),
+                          ),
                         ),
-                        child: Text(
-                          item.status ?? 'PENDING',
-                          style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: statusColor),
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 );
               }).toList(),

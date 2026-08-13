@@ -94,6 +94,62 @@ class ApiService {
     }
   }
 
+  static Future<ApiResponse> put(String endpoint, {Map<String, dynamic>? body, bool requireAuth = true}) async {
+    try {
+      final baseUrl = await SessionManager.getBaseUrl();
+      final uri = Uri.parse('$baseUrl$endpoint');
+
+      final headers = await _getHeaders(requireAuth: requireAuth);
+      final response = await http.put(
+        uri,
+        headers: headers,
+        body: body != null ? jsonEncode(body) : null,
+      ).timeout(const Duration(seconds: 15));
+
+      return _processResponse(response, endpoint: endpoint);
+    } on TimeoutException {
+      return ApiResponse(
+        success: false,
+        message: 'Koneksi timeout. Silakan periksa jaringan server Anda.',
+        statusCode: 408,
+      );
+    } catch (e) {
+      return ApiResponse(
+        success: false,
+        message: 'Gagal terhubung ke server: ${e.toString()}',
+        statusCode: 500,
+      );
+    }
+  }
+
+  static Future<ApiResponse> delete(String endpoint, {Map<String, dynamic>? body, bool requireAuth = true}) async {
+    try {
+      final baseUrl = await SessionManager.getBaseUrl();
+      final uri = Uri.parse('$baseUrl$endpoint');
+
+      final headers = await _getHeaders(requireAuth: requireAuth);
+      final response = await http.delete(
+        uri,
+        headers: headers,
+        body: body != null ? jsonEncode(body) : null,
+      ).timeout(const Duration(seconds: 15));
+
+      return _processResponse(response, endpoint: endpoint);
+    } on TimeoutException {
+      return ApiResponse(
+        success: false,
+        message: 'Koneksi timeout. Silakan periksa jaringan server Anda.',
+        statusCode: 408,
+      );
+    } catch (e) {
+      return ApiResponse(
+        success: false,
+        message: 'Gagal terhubung ke server: ${e.toString()}',
+        statusCode: 500,
+      );
+    }
+  }
+
   static ApiResponse _processResponse(http.Response response, {String? endpoint}) {
     if (response.statusCode == 401 && endpoint != null && !endpoint.contains('/auth/login')) {
       onUnauthenticated?.call();

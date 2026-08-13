@@ -6,6 +6,7 @@ import '../../core/constants/app_colors.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/setoran_kecamatan_provider.dart';
 import 'widgets/buat_setoran_modal.dart';
+import 'widgets/setoran_detail_modal.dart';
 
 class KadesSetoranScreen extends StatefulWidget {
   const KadesSetoranScreen({super.key});
@@ -37,12 +38,21 @@ class _KadesSetoranScreenState extends State<KadesSetoranScreen> {
     ]);
   }
 
-  void _openBuatSetoranModal() {
+  void _openBuatSetoranModal([SetoranItem? itemToEdit]) {
     BuatSetoranModal.show(
       context,
+      itemToEdit: itemToEdit,
       onSuccess: () {
         _loadData();
       },
+    );
+  }
+
+  void _openDetailModal(SetoranItem item) {
+    SetoranDetailModal.show(
+      context,
+      item: item,
+      onRefreshNeeded: _loadData,
     );
   }
 
@@ -55,8 +65,10 @@ class _KadesSetoranScreenState extends State<KadesSetoranScreen> {
     // Filter items locally based on selected chip
     final filteredList = setoranProvider.setoranList.where((item) {
       if (_selectedStatusFilter == 'SEMUA') return true;
-      if (_selectedStatusFilter == 'DITERIMA') return item.isDiterima;
+      if (_selectedStatusFilter == 'SETOR_KECAMATAN') return item.isSetorKecamatan;
+      if (_selectedStatusFilter == 'INTERNAL') return !item.isSetorKecamatan;
       if (_selectedStatusFilter == 'PENDING') return item.isPending;
+      if (_selectedStatusFilter == 'DITERIMA') return item.isDiterima;
       if (_selectedStatusFilter == 'DITOLAK') return item.isDitolak;
       return true;
     }).toList();
@@ -68,11 +80,11 @@ class _KadesSetoranScreenState extends State<KadesSetoranScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Catatan Setoran ke Kecamatan',
+              'Pengeluaran Kas & Setoran Desa',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             Text(
-              '${user?.desa?.namaDesa ?? "Desa"} · Riwayat & Rekapitulasi',
+              '${user?.desa?.namaDesa ?? "Desa"} · Operasional & Setoran Kecamatan',
               style: const TextStyle(fontSize: 11, color: AppColors.accent),
             ),
           ],
@@ -94,7 +106,7 @@ class _KadesSetoranScreenState extends State<KadesSetoranScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // KPI Cards Header
+              // KPI Cards Header (4 Metrics)
               _buildKpiHeader(setoranProvider),
               const SizedBox(height: 20),
 
@@ -102,14 +114,18 @@ class _KadesSetoranScreenState extends State<KadesSetoranScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'Riwayat Catatan Setoran',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 17),
+                  Expanded(
+                    child: Text(
+                      'Riwayat Catatan Pengeluaran',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 16),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
+                  const SizedBox(width: 8),
                   ElevatedButton.icon(
-                    onPressed: _openBuatSetoranModal,
+                    onPressed: () => _openBuatSetoranModal(),
                     icon: const Icon(Icons.add_rounded, size: 18),
-                    label: const Text('Buat Setoran'),
+                    label: const Text('Catat Pengeluaran'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
@@ -150,11 +166,11 @@ class _KadesSetoranScreenState extends State<KadesSetoranScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: _openBuatSetoranModal,
+        onPressed: () => _openBuatSetoranModal(),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.add_rounded),
-        label: const Text('Catat Setoran Baru', style: TextStyle(fontWeight: FontWeight.bold)),
+        label: const Text('Tambah Pengeluaran', style: TextStyle(fontWeight: FontWeight.bold)),
       ),
     );
   }
@@ -181,7 +197,7 @@ class _KadesSetoranScreenState extends State<KadesSetoranScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'REKAPITULASI KAS SETORAN',
+                'REKAPITULASI KAS DESA',
                 style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textSecondary, letterSpacing: 0.5),
               ),
               Container(
@@ -194,7 +210,7 @@ class _KadesSetoranScreenState extends State<KadesSetoranScreen> {
                   children: [
                     Icon(Icons.verified_outlined, size: 12, color: AppColors.primary),
                     SizedBox(width: 4),
-                    Text('Tahun berjalan', style: TextStyle(fontSize: 10, color: AppColors.primary, fontWeight: FontWeight.bold)),
+                    Text('Tahun 2026', style: TextStyle(fontSize: 10, color: AppColors.primary, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),
@@ -202,24 +218,38 @@ class _KadesSetoranScreenState extends State<KadesSetoranScreen> {
           ),
           const SizedBox(height: 14),
 
-          // 3 Columns Mini KPI
+          // 2x2 Grid KPI Metrics
           Row(
             children: [
               Expanded(
                 child: _buildMiniKpiTile(
-                  label: 'Disetorkan',
-                  value: _currency.format(provider.totalDiterima),
-                  icon: Icons.check_circle_outline_rounded,
-                  color: AppColors.success,
-                  bg: AppColors.successBg,
+                  label: 'Realisasi PBB Desa',
+                  value: _currency.format(provider.totalRealisasiDesa),
+                  icon: Icons.trending_up_rounded,
+                  color: AppColors.primary,
+                  bg: AppColors.surfaceCard,
                 ),
               ),
               const SizedBox(width: 8),
               Expanded(
                 child: _buildMiniKpiTile(
-                  label: 'Pending Verifikasi',
-                  value: _currency.format(provider.totalPending),
-                  icon: Icons.hourglass_top_rounded,
+                  label: 'Setor ke Kecamatan',
+                  value: _currency.format(provider.totalDiterima),
+                  icon: Icons.account_balance_rounded,
+                  color: Colors.indigo,
+                  bg: Colors.indigo.withValues(alpha: 0.08),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: _buildMiniKpiTile(
+                  label: 'Pengeluaran Internal',
+                  value: _currency.format(provider.totalPengeluaranInternal),
+                  icon: Icons.receipt_long_rounded,
                   color: AppColors.warning,
                   bg: AppColors.warningBg,
                 ),
@@ -227,11 +257,11 @@ class _KadesSetoranScreenState extends State<KadesSetoranScreen> {
               const SizedBox(width: 8),
               Expanded(
                 child: _buildMiniKpiTile(
-                  label: 'Sisa Kas Desa',
+                  label: 'Sisa Kas Desa Netto',
                   value: _currency.format(provider.totalSisaKas),
                   icon: Icons.account_balance_wallet_outlined,
-                  color: AppColors.accent,
-                  bg: AppColors.surfaceCard,
+                  color: AppColors.success,
+                  bg: AppColors.successBg,
                 ),
               ),
             ],
@@ -259,7 +289,7 @@ class _KadesSetoranScreenState extends State<KadesSetoranScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, size: 16, color: color),
-          const SizedBox(height: 6),
+          const SizedBox(height: 4),
           Text(
             label,
             maxLines: 1,
@@ -280,43 +310,138 @@ class _KadesSetoranScreenState extends State<KadesSetoranScreen> {
   }
 
   Widget _buildFilterChips() {
+    final setoranProvider = Provider.of<SetoranKecamatanProvider>(context, listen: false);
+    final allItems = setoranProvider.setoranList;
+
+    // Hitung jumlah per kategori filter untuk badge count
+    final countMap = {
+      'SEMUA': allItems.length,
+      'SETOR_KECAMATAN': allItems.where((i) => i.isSetorKecamatan).length,
+      'INTERNAL': allItems.where((i) => !i.isSetorKecamatan).length,
+      'PENDING': allItems.where((i) => i.isPending).length,
+      'DITERIMA': allItems.where((i) => i.isDiterima).length,
+    };
+
     final filters = [
-      {'key': 'SEMUA', 'label': 'Semua Data'},
-      {'key': 'DITERIMA', 'label': 'Diterima'},
-      {'key': 'PENDING', 'label': 'Pending'},
-      {'key': 'DITOLAK', 'label': 'Ditolak'},
+      {'key': 'SEMUA', 'label': 'Semua', 'icon': Icons.apps_rounded},
+      {'key': 'SETOR_KECAMATAN', 'label': 'Setor', 'icon': Icons.account_balance_rounded},
+      {'key': 'INTERNAL', 'label': 'Internal', 'icon': Icons.receipt_long_rounded},
+      {'key': 'PENDING', 'label': 'Pending', 'icon': Icons.hourglass_top_rounded},
+      {'key': 'DITERIMA', 'label': 'Diterima', 'icon': Icons.check_circle_outline_rounded},
     ];
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: filters.map((f) {
-          final isSelected = _selectedStatusFilter == f['key'];
-          return Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: ChoiceChip(
-              label: Text(f['label']!),
-              selected: isSelected,
-              selectedColor: AppColors.primary,
-              backgroundColor: AppColors.surfaceCard,
-              labelStyle: TextStyle(
-                color: isSelected ? Colors.white : AppColors.textPrimary,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                fontSize: 12,
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: filters.map((f) {
+        final key = f['key'] as String;
+        final label = f['label'] as String;
+        final icon = f['icon'] as IconData;
+        final isSelected = _selectedStatusFilter == key;
+        final count = countMap[key] ?? 0;
+
+        return GestureDetector(
+          onTap: () {
+            setState(() {
+              _selectedStatusFilter = key;
+            });
+          },
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeInOut,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: isSelected ? AppColors.primary : AppColors.surfaceCard,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: isSelected
+                    ? AppColors.primary
+                    : AppColors.glassBorder,
+                width: isSelected ? 1.5 : 1,
               ),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              onSelected: (selected) {
-                if (selected) {
-                  setState(() {
-                    _selectedStatusFilter = f['key']!;
-                  });
-                }
-              },
+              boxShadow: isSelected
+                  ? [
+                      BoxShadow(
+                        color: AppColors.primary.withValues(alpha: 0.25),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ]
+                  : [],
             ),
-          );
-        }).toList(),
-      ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  icon,
+                  size: 14,
+                  color: isSelected ? Colors.white : AppColors.textMuted,
+                ),
+                const SizedBox(width: 5),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                    color: isSelected ? Colors.white : AppColors.textPrimary,
+                  ),
+                ),
+                if (count > 0) ...[
+                  const SizedBox(width: 5),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? Colors.white.withValues(alpha: 0.25)
+                          : AppColors.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      '$count',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        color: isSelected ? Colors.white : AppColors.primary,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        );
+      }).toList(),
     );
+  }
+
+  Color _getCategoryColor(String kategori) {
+    switch (kategori) {
+      case 'SETOR_KECAMATAN':
+        return Colors.indigo;
+      case 'KEGIATAN_DESA':
+        return AppColors.success;
+      case 'OPERASIONAL_DESA':
+        return AppColors.warning;
+      case 'ADMINISTRASI':
+        return Colors.cyan.shade700;
+      default:
+        return Colors.purple;
+    }
+  }
+
+  String _getCategoryBadgeLabel(String kategori) {
+    switch (kategori) {
+      case 'SETOR_KECAMATAN':
+        return '🏛️ Setor Kecamatan';
+      case 'KEGIATAN_DESA':
+        return '🎉 Kegiatan Desa';
+      case 'OPERASIONAL_DESA':
+        return '⚡ Operasional';
+      case 'ADMINISTRASI':
+        return '📄 Administrasi/ATK';
+      default:
+        return '🛠️ Pengeluaran Lain';
+    }
   }
 
   Widget _buildSetoranCard(SetoranItem item) {
@@ -338,108 +463,135 @@ class _KadesSetoranScreenState extends State<KadesSetoranScreen> {
             ? 'DITOLAK'
             : 'MENUNGGU VERIFIKASI';
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.glassBorder),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header: No Bukti & Status
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Icon(Icons.receipt_long_rounded, color: AppColors.primary, size: 18),
-                  ),
-                  const SizedBox(width: 10),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+    final catColor = _getCategoryColor(item.kategori);
+
+    return InkWell(
+      onTap: () => _openDetailModal(item),
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppColors.glassBorder),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.02),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header: Category Badge & Status Badge
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Row(
                     children: [
-                      Text(
-                        item.nomorBukti != null ? 'No. ${item.nomorBukti}' : 'Setoran #${item.id}',
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                      Flexible(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: catColor.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: catColor.withValues(alpha: 0.3)),
+                          ),
+                          child: Text(
+                            _getCategoryBadgeLabel(item.kategori),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: catColor),
+                          ),
+                        ),
                       ),
+                      const SizedBox(width: 6),
                       Text(
                         item.tanggalSetor ?? '-',
-                        style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+                        style: const TextStyle(color: AppColors.textMuted, fontSize: 10),
                       ),
                     ],
                   ),
-                ],
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: statusBg,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: statusColor.withValues(alpha: 0.3)),
                 ),
-                child: Text(
-                  statusLabel,
-                  style: TextStyle(color: statusColor, fontSize: 10, fontWeight: FontWeight.bold),
+                const SizedBox(width: 6),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: statusBg,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: statusColor.withValues(alpha: 0.3)),
+                  ),
+                  child: Text(
+                    statusLabel,
+                    style: TextStyle(color: statusColor, fontSize: 9, fontWeight: FontWeight.bold),
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-
-          // Nominal Setoran
-          Text(
-            _currency.format(item.nominal),
-            style: const TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: AppColors.primary,
-            ),
-          ),
-          const SizedBox(height: 10),
-
-          // Informational Grid
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppColors.surfaceCard,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              children: [
-                _buildDetailRow('Metode Pembayaran', item.metodePembayaran ?? '-'),
-                if (item.namaBank != null && item.namaBank!.isNotEmpty) _buildDetailRow('Bank / Rekening', item.namaBank!),
-                _buildDetailRow('Penyetor', '${item.namaPenyetor ?? "-"} (${item.keterangan ?? "Petugas Desa"})'),
-                if (item.keterangan != null && item.keterangan!.isNotEmpty) _buildDetailRow('Catatan Desa', item.keterangan!),
-                if (item.keteranganVerifikasi != null && item.keteranganVerifikasi!.isNotEmpty)
-                  _buildDetailRow('Catatan Kecamatan', item.keteranganVerifikasi!, isHighlight: true),
-                if (item.tanggalVerifikasi != null) _buildDetailRow('Tgl Verifikasi', item.tanggalVerifikasi!),
               ],
             ),
-          ),
-        ],
+            const SizedBox(height: 10),
+
+            // Nominal Setoran & Proof Number
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item.nomorBukti != null ? 'No. ${item.nomorBukti}' : 'Setoran #${item.id}',
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppColors.textMuted),
+                    ),
+                    Text(
+                      _currency.format(item.nominal),
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ],
+                ),
+                IconButton(
+                  icon: const Icon(Icons.info_outline_rounded, color: AppColors.primary, size: 20),
+                  onPressed: () => _openDetailModal(item),
+                  tooltip: 'Lihat Detail',
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+
+            // Informational Grid
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceCard,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                children: [
+                  _buildDetailRow('Metode Pembayaran', item.metodePembayaran ?? '-'),
+                  if (item.namaBank != null && item.namaBank!.isNotEmpty) _buildDetailRow('Bank / Rekening', item.namaBank!),
+                  _buildDetailRow('Penyetor', '${item.namaPenyetor ?? "-"} (${item.keterangan ?? "Petugas Desa"})'),
+                  if (item.keterangan != null && item.keterangan!.isNotEmpty) _buildDetailRow('Catatan Desa', item.keterangan!),
+                  if (item.keteranganVerifikasi != null && item.keteranganVerifikasi!.isNotEmpty)
+                    _buildDetailRow('Catatan Kecamatan', item.keteranganVerifikasi!, isHighlight: true),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildDetailRow(String label, String value, {bool isHighlight = false}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 3),
+      padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -447,7 +599,7 @@ class _KadesSetoranScreenState extends State<KadesSetoranScreen> {
             label,
             style: TextStyle(
               color: isHighlight ? AppColors.accent : AppColors.textMuted,
-              fontSize: 12,
+              fontSize: 11,
               fontWeight: isHighlight ? FontWeight.bold : FontWeight.normal,
             ),
           ),
@@ -456,7 +608,7 @@ class _KadesSetoranScreenState extends State<KadesSetoranScreen> {
               value,
               style: TextStyle(
                 fontWeight: isHighlight ? FontWeight.bold : FontWeight.w600,
-                fontSize: 12,
+                fontSize: 11,
                 color: isHighlight ? AppColors.accent : AppColors.textPrimary,
               ),
               textAlign: TextAlign.right,
@@ -489,7 +641,7 @@ class _KadesSetoranScreenState extends State<KadesSetoranScreen> {
             ),
             const SizedBox(height: 16),
             ElevatedButton.icon(
-              onPressed: _openBuatSetoranModal,
+              onPressed: () => _openBuatSetoranModal(),
               icon: const Icon(Icons.add_rounded),
               label: const Text('Buat Setoran Sekarang'),
               style: ElevatedButton.styleFrom(
@@ -504,3 +656,4 @@ class _KadesSetoranScreenState extends State<KadesSetoranScreen> {
     );
   }
 }
+
