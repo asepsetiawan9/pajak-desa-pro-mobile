@@ -75,7 +75,32 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
     final user = authProvider.user;
+    final isSuperAdminSystem = user?.isSuperAdminSystem ?? false;
     final isKades = user?.isKepalaDesa ?? false;
+
+    final String roleBadgeText = isSuperAdminSystem
+        ? 'ADMIN KECAMATAN (PENGAWASAN)'
+        : isKades
+            ? 'KEPALA DESA (EKSEKUTIF)'
+            : 'KOLEKTOR LAPANGAN PBB-P2';
+
+    final Color roleBadgeColor = isSuperAdminSystem
+        ? AppColors.primary
+        : isKades
+            ? const Color(0xFFD97706)
+            : AppColors.primary;
+
+    final Color roleBadgeBg = isSuperAdminSystem
+        ? AppColors.primary.withValues(alpha: 0.1)
+        : isKades
+            ? const Color(0xFFFFFBEB)
+            : AppColors.primary.withValues(alpha: 0.1);
+
+    final Color roleBadgeBorder = isSuperAdminSystem
+        ? AppColors.primary.withValues(alpha: 0.3)
+        : isKades
+            ? const Color(0xFFFCD34D)
+            : AppColors.primary.withValues(alpha: 0.3);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -112,13 +137,19 @@ class ProfileScreen extends StatelessWidget {
                     height: 90,
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      gradient: isKades
+                      gradient: isSuperAdminSystem
                           ? const LinearGradient(
-                              colors: [Color(0xFF0F766E), Color(0xFF14B8A6)],
+                              colors: [Color(0xFF0284C7), Color(0xFF0EA5E9)],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             )
-                          : AppColors.primaryGradient,
+                          : isKades
+                              ? const LinearGradient(
+                                  colors: [Color(0xFF0F766E), Color(0xFF14B8A6)],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                )
+                              : AppColors.primaryGradient,
                       borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
                     ),
                     child: Stack(
@@ -127,7 +158,11 @@ class ProfileScreen extends StatelessWidget {
                           right: -20,
                           top: -20,
                           child: Icon(
-                            isKades ? Icons.admin_panel_settings_rounded : Icons.shield_rounded,
+                            isSuperAdminSystem
+                                ? Icons.verified_user_rounded
+                                : isKades
+                                    ? Icons.admin_panel_settings_rounded
+                                    : Icons.shield_rounded,
                             size: 140,
                             color: Colors.white.withValues(alpha: 0.12),
                           ),
@@ -160,17 +195,23 @@ class ProfileScreen extends StatelessWidget {
                                 ),
                                 child: CircleAvatar(
                                   radius: 42,
-                                  backgroundColor: isKades
-                                      ? const Color(0xFFFEF3C7)
-                                      : AppColors.successBg,
+                                  backgroundColor: isSuperAdminSystem
+                                      ? const Color(0xFFE0F2FE)
+                                      : isKades
+                                          ? const Color(0xFFFEF3C7)
+                                          : AppColors.successBg,
                                   child: Icon(
-                                    isKades
-                                        ? Icons.stars_rounded
-                                        : Icons.person_pin_rounded,
+                                    isSuperAdminSystem
+                                        ? Icons.verified_rounded
+                                        : isKades
+                                            ? Icons.stars_rounded
+                                            : Icons.person_pin_rounded,
                                     size: 48,
-                                    color: isKades
-                                        ? const Color(0xFFD97706)
-                                        : AppColors.primary,
+                                    color: isSuperAdminSystem
+                                        ? const Color(0xFF0284C7)
+                                        : isKades
+                                            ? const Color(0xFFD97706)
+                                            : AppColors.primary,
                                   ),
                                 ),
                               ),
@@ -201,29 +242,27 @@ class ProfileScreen extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                             decoration: BoxDecoration(
-                              color: isKades
-                                  ? const Color(0xFFFFFBEB)
-                                  : AppColors.primary.withValues(alpha: 0.1),
+                              color: roleBadgeBg,
                               borderRadius: BorderRadius.circular(30),
-                              border: Border.all(
-                                color: isKades
-                                    ? const Color(0xFFFCD34D)
-                                    : AppColors.primary.withValues(alpha: 0.3),
-                              ),
+                              border: Border.all(color: roleBadgeBorder),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Icon(
-                                  isKades ? Icons.workspace_premium_rounded : Icons.badge_rounded,
+                                  isSuperAdminSystem
+                                      ? Icons.account_balance_rounded
+                                      : isKades
+                                          ? Icons.workspace_premium_rounded
+                                          : Icons.badge_rounded,
                                   size: 16,
-                                  color: isKades ? const Color(0xFFD97706) : AppColors.primary,
+                                  color: roleBadgeColor,
                                 ),
                                 const SizedBox(width: 6),
                                 Text(
-                                  isKades ? 'KEPALA DESA (EKSEKUTIF)' : 'KOLEKTOR LAPANGAN PBB-P2',
+                                  roleBadgeText,
                                   style: TextStyle(
-                                    color: isKades ? const Color(0xFFB45309) : AppColors.primary,
+                                    color: roleBadgeColor,
                                     fontWeight: FontWeight.w800,
                                     fontSize: 11,
                                     letterSpacing: 0.5,
@@ -251,16 +290,22 @@ class ProfileScreen extends StatelessWidget {
                             children: [
                               _buildMiniKpiItem(
                                 label: 'Hak Akses Role',
-                                value: isKades ? 'Eksekutif' : 'Kolektor',
+                                value: isSuperAdminSystem
+                                    ? 'Kecamatan'
+                                    : isKades
+                                        ? 'Eksekutif'
+                                        : 'Kolektor',
                                 icon: Icons.security_rounded,
                                 iconColor: AppColors.info,
                               ),
                               Container(height: 30, width: 1, color: AppColors.glassBorder),
                               _buildMiniKpiItem(
-                                label: 'Cakupan Dusun',
-                                value: user?.allowedDusuns.isEmpty ?? true
-                                    ? 'Semua'
-                                    : '${user!.allowedDusuns.length} Dusun',
+                                label: 'Cakupan Wilayah',
+                                value: isSuperAdminSystem
+                                    ? 'Kecamatan'
+                                    : (user?.allowedDusuns.isEmpty ?? true
+                                        ? 'Semua Dusun'
+                                        : '${user!.allowedDusuns.length} Dusun'),
                                 icon: Icons.map_rounded,
                                 iconColor: AppColors.primary,
                               ),
@@ -282,22 +327,24 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // 2. Wilayah Penugasan & Dusun Card
+            // 2. Wilayah Penugasan & Scope Card
             _buildSectionCard(
-              title: 'Wilayah Penugasan & Dusun',
+              title: 'Wilayah Penugasan & Cakupan',
               icon: Icons.location_on_rounded,
               iconColor: AppColors.accent,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    isKades
-                        ? 'Sebagai Kepala Desa, Anda memiliki akses pemantauan data real-time untuk seluruh dusun di wilayah desa.'
-                        : 'Aplikasi disaring secara otomatis hanya untuk menampilkan data SPPT & penerimaan di dusun berikut:',
+                    isSuperAdminSystem
+                        ? 'Sebagai Admin Kecamatan, Anda memiliki akses pengawasan & rekapitulasi real-time seluruh desa di wilayah kecamatan.'
+                        : isKades
+                            ? 'Sebagai Kepala Desa, Anda memiliki akses pemantauan data real-time untuk seluruh dusun di wilayah desa.'
+                            : 'Aplikasi disaring secara otomatis hanya untuk menampilkan data SPPT & penerimaan di dusun berikut:',
                     style: const TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 1.4),
                   ),
                   const SizedBox(height: 14),
-                  if (user?.allowedDusuns.isEmpty ?? true)
+                  if (isSuperAdminSystem || isKades || (user?.allowedDusuns.isEmpty ?? true))
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -306,14 +353,16 @@ class ProfileScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(color: AppColors.success.withValues(alpha: 0.3)),
                       ),
-                      child: const Row(
+                      child: Row(
                         children: [
-                          Icon(Icons.verified_rounded, color: AppColors.success, size: 20),
-                          SizedBox(width: 10),
+                          const Icon(Icons.verified_rounded, color: AppColors.success, size: 20),
+                          const SizedBox(width: 10),
                           Expanded(
                             child: Text(
-                              'Seluruh Wilayah Desa (Akses Penuh / Executive)',
-                              style: TextStyle(
+                              isSuperAdminSystem
+                                  ? 'Seluruh Desa di Kecamatan ${user?.desa?.namaKecamatan ?? "Kecamatan"}'
+                                  : 'Seluruh Wilayah Desa (Akses Penuh / Executive)',
+                              style: const TextStyle(
                                 color: AppColors.success,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 13,
@@ -364,47 +413,68 @@ class ProfileScreen extends StatelessWidget {
               icon: Icons.verified_user_rounded,
               iconColor: AppColors.info,
               child: Column(
-                children: isKades
+                children: isSuperAdminSystem
                     ? [
                         _buildFeatureTile(
-                          icon: Icons.insert_chart_rounded,
-                          title: 'Dashboard Rekapitulasi Real-Time',
-                          subtitle: 'Pantau target, realisasi, & persentase capaian desa',
+                          icon: Icons.analytics_rounded,
+                          title: 'Dashboard Executive Rekap Seluruh Desa',
+                          subtitle: 'Pantau target PBB, realisasi, & setoran seluruh desa di kecamatan',
                           enabled: true,
                         ),
                         _buildFeatureTile(
-                          icon: Icons.table_chart_rounded,
-                          title: 'Laporan 21 Kolom & Filter Buku I-V',
-                          subtitle: 'Akses penuh laporan keuangan & klasifikasi buku pajak',
+                          icon: Icons.bar_chart_rounded,
+                          title: 'Monitoring DHKP & Transaksi Lintas Desa',
+                          subtitle: 'Pencarian & statistik SPPT lintas desa',
                           enabled: true,
                         ),
                         _buildFeatureTile(
-                          icon: Icons.point_of_sale_rounded,
-                          title: 'Mode Kasir Penagihan STTS',
-                          subtitle: 'Khusus role Kolektor Lapangan (Disabled untuk Kades)',
-                          enabled: false,
+                          icon: Icons.verified_rounded,
+                          title: 'Verifikasi Setoran Desa ke Kecamatan',
+                          subtitle: 'Persetujuan / penolakan setoran kas desa ke kecamatan',
+                          enabled: true,
                         ),
                       ]
-                    : [
-                        _buildFeatureTile(
-                          icon: Icons.point_of_sale_rounded,
-                          title: 'Kasir Penagihan STTS Instan',
-                          subtitle: 'Terima pembayaran PBB-P2 & cetak bukti transaksi',
-                          enabled: true,
-                        ),
-                        _buildFeatureTile(
-                          icon: Icons.list_alt_rounded,
-                          title: 'Data DHKP Dusun Penugasan',
-                          subtitle: 'Cari & filter SPPT berdasarkan NOP, nama, & status',
-                          enabled: true,
-                        ),
-                        _buildFeatureTile(
-                          icon: Icons.history_rounded,
-                          title: 'Riwayat Transaksi Setoran STTS',
-                          subtitle: 'Pantau riwayat setoran & cetak ulang kwitansi',
-                          enabled: true,
-                        ),
-                      ],
+                    : isKades
+                        ? [
+                            _buildFeatureTile(
+                              icon: Icons.insert_chart_rounded,
+                              title: 'Dashboard Rekapitulasi Real-Time',
+                              subtitle: 'Pantau target, realisasi, & persentase capaian desa',
+                              enabled: true,
+                            ),
+                            _buildFeatureTile(
+                              icon: Icons.table_chart_rounded,
+                              title: 'Laporan 21 Kolom & Filter Buku I-V',
+                              subtitle: 'Akses penuh laporan keuangan & klasifikasi buku pajak',
+                              enabled: true,
+                            ),
+                            _buildFeatureTile(
+                              icon: Icons.point_of_sale_rounded,
+                              title: 'Mode Kasir Penagihan STTS',
+                              subtitle: 'Khusus role Kolektor Lapangan (Disabled untuk Kades)',
+                              enabled: false,
+                            ),
+                          ]
+                        : [
+                            _buildFeatureTile(
+                              icon: Icons.point_of_sale_rounded,
+                              title: 'Kasir Penagihan STTS Instan',
+                              subtitle: 'Terima pembayaran PBB-P2 & cetak bukti transaksi',
+                              enabled: true,
+                            ),
+                            _buildFeatureTile(
+                              icon: Icons.list_alt_rounded,
+                              title: 'Data DHKP Dusun Penugasan',
+                              subtitle: 'Cari & filter SPPT berdasarkan NOP, nama, & status',
+                              enabled: true,
+                            ),
+                            _buildFeatureTile(
+                              icon: Icons.history_rounded,
+                              title: 'Riwayat Transaksi Setoran STTS',
+                              subtitle: 'Pantau riwayat setoran & cetak ulang kwitansi',
+                              enabled: true,
+                            ),
+                          ],
               ),
             ),
             const SizedBox(height: 16),

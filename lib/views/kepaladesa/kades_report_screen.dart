@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../core/network/api_service.dart';
 import '../../core/constants/api_constants.dart';
+import '../../providers/auth_provider.dart';
 
 class KadesReportScreen extends StatefulWidget {
   const KadesReportScreen({super.key});
@@ -60,6 +62,8 @@ class _KadesReportScreenState extends State<KadesReportScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final user = Provider.of<AuthProvider>(context).user;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -71,7 +75,7 @@ class _KadesReportScreenState extends State<KadesReportScreen> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
             ),
             Text(
-              'Evaluasi PBB-P2 Per Dusun (Tahun 2026)',
+              '${user?.desa?.namaDesa ?? "Desa"} · Evaluasi PBB-P2 Per Dusun (2026)',
               style: TextStyle(fontSize: 11, color: AppColors.textMuted.withValues(alpha: 0.9), fontWeight: FontWeight.normal),
             ),
           ],

@@ -5,11 +5,16 @@ import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/summary_provider.dart';
+import '../../providers/setoran_kecamatan_provider.dart';
 import 'kades_report_screen.dart';
+import 'kades_setoran_screen.dart';
+import 'widgets/buat_setoran_modal.dart';
 import '../auth/login_screen.dart';
 
 class KadesDashboard extends StatefulWidget {
-  const KadesDashboard({super.key});
+  final Function(int)? onNavigateTab;
+
+  const KadesDashboard({super.key, this.onNavigateTab});
 
   @override
   State<KadesDashboard> createState() => _KadesDashboardState();
@@ -22,8 +27,19 @@ class _KadesDashboardState extends State<KadesDashboard> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<SummaryProvider>(context, listen: false).fetchSummary();
+      _loadDashboardData();
     });
+  }
+
+  Future<void> _loadDashboardData() async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final desaId = authProvider.user?.desaId?.toString();
+
+    await Future.wait([
+      Provider.of<SummaryProvider>(context, listen: false).fetchSummary(),
+      Provider.of<SetoranKecamatanProvider>(context, listen: false).fetchSummary(desaId: desaId),
+      Provider.of<SetoranKecamatanProvider>(context, listen: false).fetchSetoranList(desaId: desaId),
+    ]);
   }
 
   @override
@@ -55,9 +71,9 @@ class _KadesDashboardState extends State<KadesDashboard> {
                     user?.name ?? 'Kepala Desa',
                     style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                   ),
-                  const Text(
-                    'Pemantauan Eksekutif PBB-P2',
-                    style: TextStyle(fontSize: 11, color: AppColors.accent),
+                  Text(
+                    '${user?.desa?.namaDesa ?? "Desa"} · Pemantauan Eksekutif',
+                    style: const TextStyle(fontSize: 11, color: AppColors.accent),
                   ),
                 ],
               ),
@@ -110,11 +126,11 @@ class _KadesDashboardState extends State<KadesDashboard> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                'TOTAL REALISASI DESA',
+                                'REALISASI PBB-P2 ${(user?.desa?.namaDesa ?? "Desa").toUpperCase()}',
                                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                       color: AppColors.textSecondary,
                                       fontWeight: FontWeight.bold,
-                                      letterSpacing: 1,
+                                      letterSpacing: 0.5,
                                     ),
                               ),
                               Container(
@@ -193,10 +209,14 @@ class _KadesDashboardState extends State<KadesDashboard> {
                       width: double.infinity,
                       child: ElevatedButton.icon(
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => const KadesReportScreen()),
-                          );
+                          if (widget.onNavigateTab != null) {
+                            widget.onNavigateTab!(2);
+                          } else {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => const KadesReportScreen()),
+                            );
+                          }
                         },
                         icon: const Icon(Icons.analytics_outlined),
                         label: const Text('Buka Laporan Realisasi Per Dusun'),
@@ -206,6 +226,10 @@ class _KadesDashboardState extends State<KadesDashboard> {
                         ),
                       ),
                     ),
+                    const SizedBox(height: 24),
+
+                    // Executive Section: Catatan Setoran ke Kecamatan
+                    _buildSetoranKecamatanSection(context),
                     const SizedBox(height: 24),
 
                     // Per Dusun Breakdown
@@ -277,6 +301,262 @@ class _KadesDashboardState extends State<KadesDashboard> {
                 ),
               ),
             ),
+    );
+  }
+
+  Widget _buildSetoranKecamatanSection(BuildContext context) {
+    final setoranProvider = Provider.of<SetoranKecamatanProvider>(context);
+    final recentList = setoranProvider.setoranList.take(3).toList();
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.glassBorder),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 10,
+            spreadRadius: 1,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.account_balance_wallet_rounded, color: AppColors.primary, size: 20),
+                  ),
+                  const SizedBox(width: 10),
+                  const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Setoran ke Kecamatan',
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                      ),
+                      Text(
+                        'Pengawasan & Riwayat Kas Desa',
+                        style: TextStyle(fontSize: 11, color: AppColors.textMuted),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              IconButton(
+                icon: const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: AppColors.primary),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const KadesSetoranScreen()),
+                  );
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+
+          // Mini summary KPI
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppColors.successBg,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.success.withValues(alpha: 0.3)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Diterima', style: TextStyle(fontSize: 10, color: AppColors.textMuted)),
+                      const SizedBox(height: 2),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          _currency.format(setoranProvider.totalDiterima),
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.success),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppColors.warningBg,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.warning.withValues(alpha: 0.3)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Pending', style: TextStyle(fontSize: 10, color: AppColors.textMuted)),
+                      const SizedBox(height: 2),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          _currency.format(setoranProvider.totalPending),
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.warning),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceCard,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.accent.withValues(alpha: 0.3)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Sisa Kas Desa', style: TextStyle(fontSize: 10, color: AppColors.textMuted)),
+                      const SizedBox(height: 2),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          _currency.format(setoranProvider.totalSisaKas),
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.accent),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+
+          // Recent Preview Items
+          if (recentList.isEmpty)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: const BoxDecoration(
+                color: AppColors.surfaceCard,
+                borderRadius: BorderRadius.all(Radius.circular(12)),
+              ),
+              child: Text(
+                'Belum ada catatan setoran disetorkan.',
+                style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+                textAlign: TextAlign.center,
+              ),
+            )
+          else
+            Column(
+              children: recentList.map((item) {
+                final statusColor = item.isDiterima
+                    ? AppColors.success
+                    : item.isDitolak
+                        ? AppColors.danger
+                        : AppColors.warning;
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceCard,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _currency.format(item.nominal),
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.primary),
+                            ),
+                            Text(
+                              '${item.tanggalSetor ?? "-"} · ${item.namaPenyetor ?? "Petugas"}',
+                              style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: statusColor.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          item.status ?? 'PENDING',
+                          style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: statusColor),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
+
+          const SizedBox(height: 14),
+
+          // Buttons Row
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const KadesSetoranScreen()),
+                    );
+                  },
+                  icon: const Icon(Icons.list_alt_rounded, size: 16),
+                  label: const Text('Catatan Lengkap', style: TextStyle(fontSize: 12)),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    BuatSetoranModal.show(
+                      context,
+                      onSuccess: () => _loadDashboardData(),
+                    );
+                  },
+                  icon: const Icon(Icons.add_rounded, size: 16),
+                  label: const Text('Buat Setoran', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

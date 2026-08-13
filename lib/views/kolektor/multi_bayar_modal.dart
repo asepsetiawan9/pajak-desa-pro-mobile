@@ -28,7 +28,8 @@ class _MultiBayarModalState extends State<MultiBayarModal> {
   double _uangDibayarVal = 0;
 
   double get _totalPokok => widget.selectedItems.fold(0.0, (sum, item) => sum + item.pbbTerutang);
-  double get _totalBayar => _totalPokok + _dendaVal;
+  double get _totalFee => widget.selectedItems.fold(0.0, (sum, item) => sum + (item.feeKolektor > 0 ? item.feeKolektor : (item.isLuarDesa ? 5000.0 : 0.0)));
+  double get _totalBayar => _totalPokok + _dendaVal + _totalFee;
   double get _kembalian => (_uangDibayarVal - _totalBayar) > 0 ? (_uangDibayarVal - _totalBayar) : 0;
 
   final NumberFormat _currencyFormatter = NumberFormat.currency(
@@ -75,9 +76,19 @@ class _MultiBayarModalState extends State<MultiBayarModal> {
   void _submitPayment() async {
     if (!_formKey.currentState!.validate()) return;
 
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    if (authProvider.user?.isKepalaDesa == true) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Akses Lihat-Saja: Kepala Desa tidak dapat melakukan transaksi pembayaran.'),
+          backgroundColor: AppColors.warning,
+        ),
+      );
+      return;
+    }
+
     final paymentProvider = Provider.of<PaymentProvider>(context, listen: false);
     final dhkpProvider = Provider.of<DhkpProvider>(context, listen: false);
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
     final success = await paymentProvider.submitMultiPayment(
       items: widget.selectedItems,
@@ -270,6 +281,19 @@ class _MultiBayarModalState extends State<MultiBayarModal> {
                         ),
                       ],
                     ),
+                    if (_totalFee > 0) ...[
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text('Fee Kolektor (Luar Desa):', style: TextStyle(fontSize: 13, color: AppColors.warning, fontWeight: FontWeight.w600)),
+                          Text(
+                            _currencyFormatter.format(_totalFee),
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.warning),
+                          ),
+                        ],
+                      ),
+                    ],
                     const SizedBox(height: 8),
 
                     // Input Denda Sanksi

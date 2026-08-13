@@ -8,6 +8,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../models/transaction_item_model.dart';
 import '../constants/app_colors.dart';
+import '../storage/session_manager.dart';
 
 class StrukShareHelper {
   /// Membagikan data transaksi STTS PBB-P2 dalam format teks terstruktur yang rapi.
@@ -18,6 +19,17 @@ class StrukShareHelper {
     String kecamatan = 'MALANGBONG',
     String kabupaten = 'GARUT',
   }) async {
+    final currentUser = await SessionManager.getUser();
+    final String activeDesa = (namaDesa == 'BARUDUA' && currentUser?.desa?.namaDesa != null)
+        ? currentUser!.desa!.namaDesa
+        : namaDesa;
+    final String activeKec = (kecamatan == 'MALANGBONG' && currentUser?.desa?.namaKecamatan != null)
+        ? currentUser!.desa!.namaKecamatan
+        : kecamatan;
+    final String activeKab = (kabupaten == 'GARUT' && currentUser?.desa?.namaKabupaten != null)
+        ? currentUser!.desa!.namaKabupaten
+        : kabupaten;
+
     final NumberFormat currency = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
     final String waktuStr = item.createdAt.isNotEmpty
         ? item.createdAt
@@ -26,8 +38,8 @@ class StrukShareHelper {
     final StringBuffer sb = StringBuffer();
     sb.writeln('========================================');
     sb.writeln('  LENTERA - SURAT TANDA TERIMA SETORAN  ');
-    sb.writeln('        PBB-P2 KAB. ${kabupaten.toUpperCase()}        ');
-    sb.writeln('  KEC. ${kecamatan.toUpperCase()} - DESA ${namaDesa.toUpperCase()}  ');
+    sb.writeln('        PBB-P2 KAB. ${activeKab.toUpperCase()}        ');
+    sb.writeln('  KEC. ${activeKec.toUpperCase()} - DESA ${activeDesa.toUpperCase()}  ');
     sb.writeln('========================================');
     sb.writeln('No. STTS     : ${item.kodeTransaksi}');
     sb.writeln('Nama WP      : ${item.namaWp}');

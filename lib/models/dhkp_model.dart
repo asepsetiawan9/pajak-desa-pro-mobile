@@ -15,6 +15,9 @@ class DhkpModel {
   final String? tglBayar;
   final String? domisili;
   final String? kolektorNama;
+  final double feeKolektor;
+  final int? desaId;
+  final String? namaDesa;
 
   DhkpModel({
     required this.id,
@@ -31,8 +34,11 @@ class DhkpModel {
     required this.denda,
     required this.totalBayar,
     this.tglBayar,
-    this.domisili,
+    this.domisili = 'DALAM_DESA',
     this.kolektorNama,
+    this.feeKolektor = 0.0,
+    this.desaId,
+    this.namaDesa,
   });
 
   bool get isTerbayar {
@@ -41,6 +47,7 @@ class DhkpModel {
   }
 
   bool get isLunas => isTerbayar;
+  bool get isLuarDesa => domisili?.toUpperCase() == 'LUAR_DESA';
 
   factory DhkpModel.fromJson(Map<String, dynamic> json) {
     double parseDouble(dynamic val) {
@@ -105,8 +112,11 @@ class DhkpModel {
       totalBayar: parseDouble(json['total_bayar'] ?? json['total']),
       tglBayar:
           json['tanggal_bayar']?.toString() ?? json['tgl_bayar']?.toString(),
-      domisili: json['domisili']?.toString(),
+      domisili: (json['domisili'] ?? 'DALAM_DESA').toString().toUpperCase(),
       kolektorNama: collectorName,
+      feeKolektor: parseDouble(json['fee_kolektor'] ?? json['feeKolektor']),
+      desaId: json['desa_id'] != null ? (json['desa_id'] is int ? json['desa_id'] : int.tryParse(json['desa_id'].toString())) : (json['desa'] != null && json['desa'] is Map ? json['desa']['id'] : null),
+      namaDesa: json['desa']?['nama_desa']?.toString() ?? json['nama_desa']?.toString(),
     );
   }
 }

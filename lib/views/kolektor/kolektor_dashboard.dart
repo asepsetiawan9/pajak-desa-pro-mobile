@@ -157,7 +157,7 @@ class _KolektorDashboardState extends State<KolektorDashboard> {
                         ),
                       ),
                       Text(
-                        'Dusun Penugasan: ${user?.allowedDusuns.join(', ') ?? '-'}',
+                        '${user?.desa?.namaDesa ?? "Desa"} · Dusun: ${user?.allowedDusuns.join(', ') ?? '-'}',
                         style: const TextStyle(
                           fontSize: 11,
                           color: AppColors.accent,

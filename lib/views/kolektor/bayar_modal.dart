@@ -24,7 +24,10 @@ class _BayarModalState extends State<BayarModal> {
   String _metodePembayaran = 'TUNAI';
 
   double _dendaVal = 0;
-  double get _totalBayar => widget.dhkpItem.pbbTerutang + _dendaVal;
+  double get _feeKolektor => widget.dhkpItem.feeKolektor > 0
+      ? widget.dhkpItem.feeKolektor
+      : (widget.dhkpItem.isLuarDesa ? 5000.0 : 0.0);
+  double get _totalBayar => widget.dhkpItem.pbbTerutang + _dendaVal + _feeKolektor;
 
   final NumberFormat _currencyFormatter = NumberFormat.currency(
     locale: 'id_ID',
@@ -56,9 +59,19 @@ class _BayarModalState extends State<BayarModal> {
   void _submitPayment() async {
     if (!_formKey.currentState!.validate()) return;
 
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    if (authProvider.user?.isKepalaDesa == true) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Akses Lihat-Saja: Kepala Desa tidak dapat melakukan transaksi pembayaran.'),
+          backgroundColor: AppColors.warning,
+        ),
+      );
+      return;
+    }
+
     final paymentProvider = Provider.of<PaymentProvider>(context, listen: false);
     final dhkpProvider = Provider.of<DhkpProvider>(context, listen: false);
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
     final success = await paymentProvider.submitPayment(
       item: widget.dhkpItem,
@@ -189,6 +202,38 @@ class _BayarModalState extends State<BayarModal> {
                 ),
               ],
             ),
+            if (_feeKolektor > 0) ...[
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Text('Fee Kolektor (Luar Desa):', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.warning)),
+                      const SizedBox(width: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: AppColors.warning.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          'LUAR DESA',
+                          style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.warning),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    _currencyFormatter.format(_feeKolektor),
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          color: AppColors.warning,
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                ],
+              ),
+            ],
             const SizedBox(height: 12),
 
             // Input Denda

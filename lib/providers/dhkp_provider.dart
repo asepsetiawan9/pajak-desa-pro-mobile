@@ -20,8 +20,10 @@ class DhkpProvider extends ChangeNotifier {
   final int _perPage = 20;
 
   String _searchQuery = '';
+  String _selectedDesaId = 'ALL';
   String _selectedDusun = 'ALL';
   String _selectedStatus = 'ALL'; // 'ALL', 'terbayar', 'belum_bayar'
+  String _selectedDomisili = 'ALL'; // 'ALL', 'DALAM_DESA', 'LUAR_DESA'
   String _sortBy =
       'default'; // 'default', 'nama_asc', 'nama_desc', 'nominal_desc', 'nominal_asc'
 
@@ -41,15 +43,19 @@ class DhkpProvider extends ChangeNotifier {
   int get totalRows => _totalRows;
 
   String get searchQuery => _searchQuery;
+  String get selectedDesaId => _selectedDesaId;
   String get selectedDusun => _selectedDusun;
   String get selectedStatus => _selectedStatus;
+  String get selectedDomisili => _selectedDomisili;
   String get sortBy => _sortBy;
 
   int get activeFilterCount {
     int count = 0;
     if (_searchQuery.trim().isNotEmpty) count++;
+    if (_selectedDesaId.trim().toUpperCase() != 'ALL') count++;
     if (_selectedDusun.trim().toUpperCase() != 'ALL') count++;
     if (_selectedStatus.trim().toUpperCase() != 'ALL') count++;
+    if (_selectedDomisili.trim().toUpperCase() != 'ALL') count++;
     if (_sortBy != 'default') count++;
     return count;
   }
@@ -111,6 +117,10 @@ class DhkpProvider extends ChangeNotifier {
       queryParams['search'] = _searchQuery.trim();
     }
 
+    if (_selectedDesaId.trim().toUpperCase() != 'ALL') {
+      queryParams['desa_id'] = _selectedDesaId.trim();
+    }
+
     if (_selectedDusun.trim().toUpperCase() != 'ALL') {
       queryParams['dusun'] = _selectedDusun.trim();
     }
@@ -124,6 +134,10 @@ class DhkpProvider extends ChangeNotifier {
       } else {
         queryParams['status_bayar'] = statusUpper;
       }
+    }
+
+    if (_selectedDomisili.trim().toUpperCase() != 'ALL') {
+      queryParams['domisili'] = _selectedDomisili.trim().toUpperCase();
     }
 
     final response = await ApiService.get(
@@ -193,6 +207,13 @@ class DhkpProvider extends ChangeNotifier {
     });
   }
 
+  void setSelectedDesaId(String desaId, {UserModel? currentUser}) {
+    if (_selectedDesaId != desaId) {
+      _selectedDesaId = desaId;
+      fetchDhkp(isRefresh: true, currentUser: currentUser);
+    }
+  }
+
   void setSelectedDusun(String dusun, {UserModel? currentUser}) {
     if (_selectedDusun != dusun) {
       _selectedDusun = dusun;
@@ -207,6 +228,13 @@ class DhkpProvider extends ChangeNotifier {
     }
   }
 
+  void setSelectedDomisili(String domisili, {UserModel? currentUser}) {
+    if (_selectedDomisili != domisili) {
+      _selectedDomisili = domisili;
+      fetchDhkp(isRefresh: true, currentUser: currentUser);
+    }
+  }
+
   void setSortBy(String sortOption, {UserModel? currentUser}) {
     if (_sortBy != sortOption) {
       _sortBy = sortOption;
@@ -217,8 +245,10 @@ class DhkpProvider extends ChangeNotifier {
 
   void resetFilters({UserModel? currentUser}) {
     _searchQuery = '';
+    _selectedDesaId = 'ALL';
     _selectedDusun = 'ALL';
     _selectedStatus = 'ALL';
+    _selectedDomisili = 'ALL';
     _sortBy = 'default';
     fetchDhkp(isRefresh: true, currentUser: currentUser);
   }
@@ -249,7 +279,15 @@ class DhkpProvider extends ChangeNotifier {
       temp = temp.where((row) => !row.isTerbayar).toList();
     }
 
-    // 3. Client-side Sorting
+    // 3. Domisili Filter Client-side safeguard
+    final domisiliUpper = _selectedDomisili.trim().toUpperCase();
+    if (domisiliUpper == 'DALAM_DESA') {
+      temp = temp.where((row) => !row.isLuarDesa).toList();
+    } else if (domisiliUpper == 'LUAR_DESA') {
+      temp = temp.where((row) => row.isLuarDesa).toList();
+    }
+
+    // 4. Client-side Sorting
     if (_sortBy == 'nama_asc') {
       temp.sort(
         (a, b) => a.namaWp.toLowerCase().compareTo(b.namaWp.toLowerCase()),

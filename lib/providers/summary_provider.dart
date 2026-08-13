@@ -12,12 +12,19 @@ class SummaryProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-  Future<void> fetchSummary() async {
+  Future<void> fetchSummary({String? desaId}) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
-    final response = await ApiService.get(ApiConstants.summaryMetricsEndpoint);
+    final Map<String, String>? queryParams = (desaId != null && desaId.trim().isNotEmpty && desaId.trim().toLowerCase() != 'all')
+        ? {'desa_id': desaId.trim()}
+        : null;
+
+    final response = await ApiService.get(
+      ApiConstants.summaryMetricsEndpoint,
+      queryParams: queryParams,
+    );
 
     if (response.success && response.data != null) {
       try {
