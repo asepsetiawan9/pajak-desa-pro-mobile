@@ -133,6 +133,30 @@ class _BuatSetoranModalState extends State<BuatSetoranModal> {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final setoranProvider = Provider.of<SetoranKecamatanProvider>(context, listen: false);
 
+    final double availableKas = widget.itemToEdit != null
+        ? setoranProvider.totalSisaKas + (widget.itemToEdit!.isDiterima ? widget.itemToEdit!.nominal : 0)
+        : setoranProvider.totalSisaKas;
+
+    if (widget.itemToEdit == null && setoranProvider.totalSisaKas <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Saldo kas PBB-P2 desa Rp 0. Tidak dapat membuat pengeluaran baru.'),
+          backgroundColor: AppColors.danger,
+        ),
+      );
+      return;
+    }
+
+    if (_parsedNominal > availableKas) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Nominal pengeluaran (${_currencyFormat.format(_parsedNominal)}) melebihi sisa saldo kas (${_currencyFormat.format(availableKas)})'),
+          backgroundColor: AppColors.danger,
+        ),
+      );
+      return;
+    }
+
     final bool success;
     if (widget.itemToEdit != null) {
       success = await setoranProvider.updateSetoran(
@@ -265,7 +289,66 @@ class _BuatSetoranModalState extends State<BuatSetoranModal> {
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
+
+              // Info Sisa Kas Desa Card
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: setoranProvider.totalSisaKas <= 0 && !isEditing
+                      ? AppColors.danger.withValues(alpha: 0.1)
+                      : AppColors.success.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: setoranProvider.totalSisaKas <= 0 && !isEditing
+                        ? AppColors.danger.withValues(alpha: 0.3)
+                        : AppColors.success.withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      setoranProvider.totalSisaKas <= 0 && !isEditing
+                          ? Icons.warning_amber_rounded
+                          : Icons.account_balance_rounded,
+                      color: setoranProvider.totalSisaKas <= 0 && !isEditing
+                          ? AppColors.danger
+                          : AppColors.success,
+                      size: 24,
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Sisa Saldo Kas PBB-P2 Tersedia',
+                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+                          ),
+                          Text(
+                            _currencyFormat.format(setoranProvider.totalSisaKas),
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: setoranProvider.totalSisaKas <= 0 && !isEditing
+                                  ? AppColors.danger
+                                  : AppColors.success,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (setoranProvider.totalSisaKas <= 0 && !isEditing) ...[
+                const SizedBox(height: 8),
+                const Text(
+                  '⚠️ Saldo kas Rp 0. Tidak dapat membuat pengeluaran baru.',
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.danger),
+                ),
+              ],
+              const SizedBox(height: 16),
 
               // Kategori Pengeluaran Dropdown
               const Text('Kategori Pengeluaran', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
@@ -376,9 +459,9 @@ class _BuatSetoranModalState extends State<BuatSetoranModal> {
                             fillColor: AppColors.surfaceCard,
                           ),
                           items: const [
-                            DropdownMenuItem(value: 'TRANSFER', child: Text('Transfer Bank')),
-                            DropdownMenuItem(value: 'TUNAI', child: Text('Cash / Tunai')),
-                            DropdownMenuItem(value: 'BANK', child: Text('Setor Bank Direct')),
+                            DropdownMenuItem(value: 'TRANSFER', child: Text('🏦 Transfer Bank')),
+                            DropdownMenuItem(value: 'TUNAI', child: Text('💵 Tunai')),
+                            DropdownMenuItem(value: 'BANK', child: Text('📄 Metode Lainnya')),
                           ],
                           onChanged: (val) {
                             if (val != null) setState(() => _metodeSetoran = val);
