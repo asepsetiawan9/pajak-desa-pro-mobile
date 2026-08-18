@@ -253,11 +253,11 @@ class _BuatSetoranModalState extends State<BuatSetoranModal> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          isEditing ? 'Edit Catatan Pengeluaran' : 'Catat Pengeluaran Kas Desa',
+                          isEditing ? 'Edit Catatan Pengeluaran' : 'Catat Pengeluaran PBB-P2 Desa',
                           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          isEditing ? 'Perbarui data rincian pengeluaran kas' : 'Setoran ke Kecamatan atau Pengeluaran Kegiatan/Operasional',
+                          isEditing ? 'Perbarui data rincian pengeluaran PBB-P2' : 'Setoran ke Kecamatan atau Pengeluaran Internal Desa',
                           style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
                         ),
                       ],
@@ -283,7 +283,7 @@ class _BuatSetoranModalState extends State<BuatSetoranModal> {
                   DropdownMenuItem(value: 'KEGIATAN_DESA', child: Text('🎉 Kegiatan Kemasyarakatan / PHBN')),
                   DropdownMenuItem(value: 'OPERASIONAL_DESA', child: Text('⚡ Operasional & Insentif Petugas')),
                   DropdownMenuItem(value: 'ADMINISTRASI', child: Text('📄 Administrasi, ATK & Cetak Resi')),
-                  DropdownMenuItem(value: 'LAINNYA', child: Text('🛠️ Pengeluaran Kas Lainnya')),
+                  DropdownMenuItem(value: 'LAINNYA', child: Text('🛠️ Pengeluaran Lainnya')),
                 ],
                 onChanged: (val) {
                   if (val != null) setState(() => _kategori = val);
@@ -293,11 +293,11 @@ class _BuatSetoranModalState extends State<BuatSetoranModal> {
               Text(
                 _kategori == 'SETOR_KECAMATAN'
                     ? 'ℹ️ Memerlukan verifikasi Admin Kecamatan sebelum memotong saldo.'
-                    : '✅ Pengeluaran internal langsung sah memotong Saldo Kas Desa.',
+                    : '⏳ Memerlukan persetujuan (ACC) Kepala Desa sebelum memotong Saldo Kas Desa.',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
-                  color: _kategori == 'SETOR_KECAMATAN' ? AppColors.info : AppColors.success,
+                  color: _kategori == 'SETOR_KECAMATAN' ? AppColors.info : AppColors.warning,
                 ),
               ),
               const SizedBox(height: 14),
@@ -506,8 +506,8 @@ class _BuatSetoranModalState extends State<BuatSetoranModal> {
                     setoranProvider.isSubmitting
                         ? 'Menyimpan...'
                         : isEditing
-                            ? 'Simpan Perubahan'
-                            : 'Simpan Catatan Setoran',
+                            ? 'Perbarui Data'
+                            : 'Simpan',
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                   ),
                   style: ElevatedButton.styleFrom(

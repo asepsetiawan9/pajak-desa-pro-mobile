@@ -121,11 +121,101 @@ class SetoranDetailModal extends StatelessWidget {
     );
   }
 
+  void _confirmAccKades(BuildContext context, bool isApprove) {
+    final setoranProvider = Provider.of<SetoranKecamatanProvider>(context, listen: false);
+    final notesController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        backgroundColor: AppColors.surface,
+        title: Row(
+          children: [
+            Icon(
+              isApprove ? Icons.verified_rounded : Icons.cancel_rounded,
+              color: isApprove ? AppColors.success : AppColors.danger,
+              size: 26,
+            ),
+            const SizedBox(width: 10),
+            Text(
+              isApprove ? 'Setujui (ACC) Pengeluaran?' : 'Tolak Pengeluaran?',
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              isApprove
+                  ? 'Pengeluaran sebesar ${NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(item.nominal)} akan disetujui secara resmi dan memotong Saldo Kas Desa.'
+                  : 'Pengeluaran ini akan ditolak dan tidak akan memotong Saldo Kas Desa.',
+              style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+            ),
+            const SizedBox(height: 14),
+            TextField(
+              controller: notesController,
+              decoration: InputDecoration(
+                hintText: isApprove ? 'Catatan persetujuan (opsional)...' : 'Alasan penolakan (wajib)...',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              ),
+              maxLines: 2,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Batal', style: TextStyle(color: AppColors.textMuted)),
+          ),
+          ElevatedButton.icon(
+            icon: Icon(isApprove ? Icons.check_circle_rounded : Icons.cancel_rounded, size: 18),
+            label: Text(isApprove ? 'ACC & Setujui' : 'Tolak Pengeluaran'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: isApprove ? AppColors.success : AppColors.danger,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            onPressed: () async {
+              Navigator.pop(ctx); // Close dialog
+              final success = await setoranProvider.verifySetoran(
+                setoranId: item.id,
+                status: isApprove ? 'DITERIMA' : 'DITOLAK',
+                keterangan: notesController.text.trim(),
+              );
+
+              if (context.mounted) {
+                Navigator.pop(context); // Close bottom sheet
+                onRefreshNeeded();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      success
+                          ? (isApprove ? 'Pengeluaran berhasil disetujui (ACC)!' : 'Pengeluaran berhasil ditolak.')
+                          : setoranProvider.errorMessage ?? 'Gagal memproses persetujuan.',
+                    ),
+                    backgroundColor: success ? AppColors.success : AppColors.danger,
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                );
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final NumberFormat currency = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
     final authProvider = Provider.of<AuthProvider>(context);
     final user = authProvider.user;
+    final isInternal = !item.isSetorKecamatan;
 
     final statusColor = item.isDiterima
         ? AppColors.success
@@ -140,10 +230,10 @@ class SetoranDetailModal extends StatelessWidget {
             : AppColors.warningBg;
 
     final statusLabel = item.isDiterima
-        ? 'DITERIMA KECAMATAN'
+        ? (isInternal ? 'DISETUJUI KADES' : 'DITERIMA KECAMATAN')
         : item.isDitolak
-            ? 'DITOLAK KECAMATAN'
-            : 'MENUNGGU VERIFIKASI';
+            ? (isInternal ? 'DITOLAK KADES' : 'DITOLAK KECAMATAN')
+            : (isInternal ? 'MENUNGGU ACC KADES' : 'MENUNGGU VERIFIKASI');
 
     final categoryColor = _getCategoryColor(item.kategori);
 
@@ -287,7 +377,43 @@ class SetoranDetailModal extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // Action Buttons
+            // Action Buttons for Kepala Desa (ACC / Tolak)
+            if (isInternal && item.isPending && user?.isKepalaDesa == true) ...[
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () => _confirmAccKades(context, true),
+                      icon: const Icon(Icons.verified_rounded, size: 18),
+                      label: const Text('ACC & Setujui'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.success,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => _confirmAccKades(context, false),
+                      icon: const Icon(Icons.cancel_outlined, size: 18),
+                      label: const Text('Tolak'),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        side: const BorderSide(color: AppColors.danger),
+                        foregroundColor: AppColors.danger,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+            ],
+
+            // Action Buttons (Edit / Hapus)
             if (item.isPending && (user?.isKepalaDesa == true || user?.isBendahara == true)) ...[
               Row(
                 children: [

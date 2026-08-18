@@ -80,7 +80,7 @@ class _KadesSetoranScreenState extends State<KadesSetoranScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Pengeluaran Kas & Setoran Desa',
+              'Pengeluaran PBB-P2 & Setoran Desa',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             Text(
@@ -170,7 +170,7 @@ class _KadesSetoranScreenState extends State<KadesSetoranScreen> {
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.add_rounded),
-        label: const Text('Tambah Pengeluaran', style: TextStyle(fontWeight: FontWeight.bold)),
+        label: const Text('Tambah Pengeluaran PBB-P2', style: TextStyle(fontWeight: FontWeight.bold)),
       ),
     );
   }
@@ -457,11 +457,12 @@ class _KadesSetoranScreenState extends State<KadesSetoranScreen> {
             ? AppColors.dangerBg
             : AppColors.warningBg;
 
+    final isInternal = !item.isSetorKecamatan;
     final statusLabel = item.isDiterima
-        ? 'DITERIMA KECAMATAN'
+        ? (isInternal ? 'DISETUJUI KADES' : 'DITERIMA KECAMATAN')
         : item.isDitolak
-            ? 'DITOLAK'
-            : 'MENUNGGU VERIFIKASI';
+            ? (isInternal ? 'DITOLAK KADES' : 'DITOLAK KECAMATAN')
+            : (isInternal ? 'MENUNGGU ACC KADES' : 'MENUNGGU VERIFIKASI');
 
     final catColor = _getCategoryColor(item.kategori);
 
