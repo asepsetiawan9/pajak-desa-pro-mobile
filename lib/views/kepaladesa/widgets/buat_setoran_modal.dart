@@ -8,15 +8,16 @@ import '../../../providers/setoran_kecamatan_provider.dart';
 
 class BuatSetoranModal extends StatefulWidget {
   final VoidCallback onSuccess;
+  final SetoranItem? itemToEdit;
 
-  const BuatSetoranModal({super.key, required this.onSuccess});
+  const BuatSetoranModal({super.key, required this.onSuccess, this.itemToEdit});
 
-  static Future<void> show(BuildContext context, {required VoidCallback onSuccess}) {
+  static Future<void> show(BuildContext context, {required VoidCallback onSuccess, SetoranItem? itemToEdit}) {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (ctx) => BuatSetoranModal(onSuccess: onSuccess),
+      builder: (ctx) => BuatSetoranModal(onSuccess: onSuccess, itemToEdit: itemToEdit),
     );
   }
 
@@ -30,6 +31,7 @@ class _BuatSetoranModalState extends State<BuatSetoranModal> {
   final DateFormat _dateFormat = DateFormat('yyyy-MM-dd');
   final DateFormat _displayDateFormat = DateFormat('dd MMMM yyyy', 'id_ID');
 
+  String _kategori = 'SETOR_KECAMATAN';
   DateTime _selectedDate = DateTime.now();
   final TextEditingController _nominalController = TextEditingController();
   String _metodeSetoran = 'TRANSFER';
@@ -47,8 +49,26 @@ class _BuatSetoranModalState extends State<BuatSetoranModal> {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final user = authProvider.user;
 
-    _penyetorNamaController = TextEditingController(text: user?.name ?? '');
-    _penyetorJabatanController = TextEditingController(text: user?.isKepalaDesa == true ? 'Kepala Desa' : 'Bendahara Desa');
+    final item = widget.itemToEdit;
+    if (item != null) {
+      _kategori = item.kategori;
+      if (item.tanggalSetor != null) {
+        try {
+          _selectedDate = DateTime.parse(item.tanggalSetor!);
+        } catch (_) {}
+      }
+      _parsedNominal = item.nominal;
+      _nominalController.text = item.nominal.toStringAsFixed(0);
+      _metodeSetoran = item.metodePembayaran ?? 'TRANSFER';
+      _bankTujuanController.text = item.namaBank ?? '';
+      _nomorReferensiController.text = item.nomorBukti ?? '';
+      _penyetorNamaController = TextEditingController(text: item.namaPenyetor ?? user?.name ?? '');
+      _penyetorJabatanController = TextEditingController(text: user?.isKepalaDesa == true ? 'Kepala Desa' : 'Bendahara Desa');
+      _catatanDesaController.text = item.keterangan ?? '';
+    } else {
+      _penyetorNamaController = TextEditingController(text: user?.name ?? '');
+      _penyetorJabatanController = TextEditingController(text: user?.isKepalaDesa == true ? 'Kepala Desa' : 'Bendahara Desa');
+    }
   }
 
   @override
@@ -103,7 +123,7 @@ class _BuatSetoranModalState extends State<BuatSetoranModal> {
     if (_parsedNominal <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Nominal setoran harus lebih besar dari Rp 0'),
+          content: Text('Nominal pengeluaran harus lebih besar dari Rp 0'),
           backgroundColor: AppColors.danger,
         ),
       );
@@ -113,17 +133,59 @@ class _BuatSetoranModalState extends State<BuatSetoranModal> {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final setoranProvider = Provider.of<SetoranKecamatanProvider>(context, listen: false);
 
-    final success = await setoranProvider.createSetoran(
-      tanggalSetor: _dateFormat.format(_selectedDate),
-      nominal: _parsedNominal,
-      metodeSetoran: _metodeSetoran,
-      bankTujuan: _bankTujuanController.text.trim(),
-      nomorReferensi: _nomorReferensiController.text.trim(),
-      penyetorNama: _penyetorNamaController.text.trim(),
-      penyetorJabatan: _penyetorJabatanController.text.trim(),
-      catatanDesa: _catatanDesaController.text.trim(),
-      desaId: authProvider.user?.desaId,
-    );
+    final double availableKas = widget.itemToEdit != null
+        ? setoranProvider.totalSisaKas + (widget.itemToEdit!.isDiterima ? widget.itemToEdit!.nominal : 0)
+        : setoranProvider.totalSisaKas;
+
+    if (widget.itemToEdit == null && setoranProvider.totalSisaKas <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Saldo kas PBB-P2 desa Rp 0. Tidak dapat membuat pengeluaran baru.'),
+          backgroundColor: AppColors.danger,
+        ),
+      );
+      return;
+    }
+
+    if (_parsedNominal > availableKas) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Nominal pengeluaran (${_currencyFormat.format(_parsedNominal)}) melebihi sisa saldo kas (${_currencyFormat.format(availableKas)})'),
+          backgroundColor: AppColors.danger,
+        ),
+      );
+      return;
+    }
+
+    final bool success;
+    if (widget.itemToEdit != null) {
+      success = await setoranProvider.updateSetoran(
+        id: widget.itemToEdit!.id,
+        tanggalSetor: _dateFormat.format(_selectedDate),
+        kategori: _kategori,
+        nominal: _parsedNominal,
+        metodeSetoran: _metodeSetoran,
+        bankTujuan: _bankTujuanController.text.trim(),
+        nomorReferensi: _nomorReferensiController.text.trim(),
+        penyetorNama: _penyetorNamaController.text.trim(),
+        penyetorJabatan: _penyetorJabatanController.text.trim(),
+        catatanDesa: _catatanDesaController.text.trim(),
+        desaId: authProvider.user?.desaId,
+      );
+    } else {
+      success = await setoranProvider.createSetoran(
+        tanggalSetor: _dateFormat.format(_selectedDate),
+        kategori: _kategori,
+        nominal: _parsedNominal,
+        metodeSetoran: _metodeSetoran,
+        bankTujuan: _bankTujuanController.text.trim(),
+        nomorReferensi: _nomorReferensiController.text.trim(),
+        penyetorNama: _penyetorNamaController.text.trim(),
+        penyetorJabatan: _penyetorJabatanController.text.trim(),
+        catatanDesa: _catatanDesaController.text.trim(),
+        desaId: authProvider.user?.desaId,
+      );
+    }
 
     if (!mounted) return;
 
@@ -132,11 +194,17 @@ class _BuatSetoranModalState extends State<BuatSetoranModal> {
       widget.onSuccess();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Row(
+          content: Row(
             children: [
-              Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
-              SizedBox(width: 10),
-              Expanded(child: Text('Catatan setoran ke Kecamatan berhasil disimpan!')),
+              const Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  widget.itemToEdit != null
+                      ? 'Catatan pengeluaran berhasil diperbarui!'
+                      : 'Catatan pengeluaran berhasil disimpan!',
+                ),
+              ),
             ],
           ),
           backgroundColor: AppColors.success,
@@ -147,7 +215,7 @@ class _BuatSetoranModalState extends State<BuatSetoranModal> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(setoranProvider.errorMessage ?? 'Gagal menyimpan setoran.'),
+          content: Text(setoranProvider.errorMessage ?? 'Gagal menyimpan catatan pengeluaran.'),
           backgroundColor: AppColors.danger,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -160,6 +228,7 @@ class _BuatSetoranModalState extends State<BuatSetoranModal> {
   Widget build(BuildContext context) {
     final bottomPadding = MediaQuery.of(context).viewInsets.bottom;
     final setoranProvider = Provider.of<SetoranKecamatanProvider>(context);
+    final isEditing = widget.itemToEdit != null;
 
     return Container(
       padding: EdgeInsets.fromLTRB(20, 16, 20, bottomPadding + 20),
@@ -196,27 +265,125 @@ class _BuatSetoranModalState extends State<BuatSetoranModal> {
                       color: AppColors.primary.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.account_balance_wallet_rounded, color: AppColors.primary, size: 22),
+                    child: Icon(
+                      isEditing ? Icons.edit_note_rounded : Icons.account_balance_wallet_rounded,
+                      color: AppColors.primary,
+                      size: 22,
+                    ),
                   ),
                   const SizedBox(width: 12),
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Buat Catatan Setoran Baru',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          isEditing ? 'Edit Catatan Pengeluaran' : 'Catat Pengeluaran PBB-P2 Desa',
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          'Setorkan Hasil Penerimaan PBB-P2 ke Kecamatan',
-                          style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+                          isEditing ? 'Perbarui data rincian pengeluaran PBB-P2' : 'Setoran ke Kecamatan atau Pengeluaran Internal Desa',
+                          style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
                         ),
                       ],
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
+
+              // Info Sisa Kas Desa Card
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: setoranProvider.totalSisaKas <= 0 && !isEditing
+                      ? AppColors.danger.withValues(alpha: 0.1)
+                      : AppColors.success.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: setoranProvider.totalSisaKas <= 0 && !isEditing
+                        ? AppColors.danger.withValues(alpha: 0.3)
+                        : AppColors.success.withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      setoranProvider.totalSisaKas <= 0 && !isEditing
+                          ? Icons.warning_amber_rounded
+                          : Icons.account_balance_rounded,
+                      color: setoranProvider.totalSisaKas <= 0 && !isEditing
+                          ? AppColors.danger
+                          : AppColors.success,
+                      size: 24,
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Sisa Saldo Kas PBB-P2 Tersedia',
+                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+                          ),
+                          Text(
+                            _currencyFormat.format(setoranProvider.totalSisaKas),
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: setoranProvider.totalSisaKas <= 0 && !isEditing
+                                  ? AppColors.danger
+                                  : AppColors.success,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (setoranProvider.totalSisaKas <= 0 && !isEditing) ...[
+                const SizedBox(height: 8),
+                const Text(
+                  '⚠️ Saldo kas Rp 0. Tidak dapat membuat pengeluaran baru.',
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.danger),
+                ),
+              ],
+              const SizedBox(height: 16),
+
+              // Kategori Pengeluaran Dropdown
+              const Text('Kategori Pengeluaran', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+              const SizedBox(height: 6),
+              DropdownButtonFormField<String>(
+                initialValue: _kategori,
+                decoration: InputDecoration(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  filled: true,
+                  fillColor: AppColors.surfaceCard,
+                ),
+                items: const [
+                  DropdownMenuItem(value: 'SETOR_KECAMATAN', child: Text('🏛️ Setor PBB ke Kecamatan')),
+                  DropdownMenuItem(value: 'KEGIATAN_DESA', child: Text('🎉 Kegiatan Kemasyarakatan / PHBN')),
+                  DropdownMenuItem(value: 'OPERASIONAL_DESA', child: Text('⚡ Operasional & Insentif Petugas')),
+                  DropdownMenuItem(value: 'ADMINISTRASI', child: Text('📄 Administrasi, ATK & Cetak Resi')),
+                  DropdownMenuItem(value: 'LAINNYA', child: Text('🛠️ Pengeluaran Lainnya')),
+                ],
+                onChanged: (val) {
+                  if (val != null) setState(() => _kategori = val);
+                },
+              ),
+              const SizedBox(height: 6),
+              Text(
+                _kategori == 'SETOR_KECAMATAN'
+                    ? 'ℹ️ Memerlukan verifikasi Admin Kecamatan sebelum memotong saldo.'
+                    : '⏳ Memerlukan persetujuan (ACC) Kepala Desa sebelum memotong Saldo Kas Desa.',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: _kategori == 'SETOR_KECAMATAN' ? AppColors.info : AppColors.warning,
+                ),
+              ),
+              const SizedBox(height: 14),
 
               // Tanggal Setor
               const Text('Tanggal Setor', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
@@ -292,9 +459,9 @@ class _BuatSetoranModalState extends State<BuatSetoranModal> {
                             fillColor: AppColors.surfaceCard,
                           ),
                           items: const [
-                            DropdownMenuItem(value: 'TRANSFER', child: Text('Transfer Bank')),
-                            DropdownMenuItem(value: 'TUNAI', child: Text('Cash / Tunai')),
-                            DropdownMenuItem(value: 'BANK', child: Text('Setor Bank Direct')),
+                            DropdownMenuItem(value: 'TRANSFER', child: Text('🏦 Transfer Bank')),
+                            DropdownMenuItem(value: 'TUNAI', child: Text('💵 Tunai')),
+                            DropdownMenuItem(value: 'BANK', child: Text('📄 Metode Lainnya')),
                           ],
                           onChanged: (val) {
                             if (val != null) setState(() => _metodeSetoran = val);
@@ -417,9 +584,13 @@ class _BuatSetoranModalState extends State<BuatSetoranModal> {
                           height: 18,
                           child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                         )
-                      : const Icon(Icons.send_rounded, size: 20),
+                      : Icon(isEditing ? Icons.save_rounded : Icons.send_rounded, size: 20),
                   label: Text(
-                    setoranProvider.isSubmitting ? 'Menyimpan...' : 'Simpan Catatan Setoran',
+                    setoranProvider.isSubmitting
+                        ? 'Menyimpan...'
+                        : isEditing
+                            ? 'Perbarui Data'
+                            : 'Simpan',
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                   ),
                   style: ElevatedButton.styleFrom(

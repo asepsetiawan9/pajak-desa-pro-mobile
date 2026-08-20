@@ -15,12 +15,12 @@ class StrukShareHelper {
   static Future<void> shareStrukText({
     required BuildContext context,
     required TransactionItemModel item,
-    String namaDesa = 'BARUDUA',
+    String namaDesa = 'DESA',
     String kecamatan = 'MALANGBONG',
     String kabupaten = 'GARUT',
   }) async {
     final currentUser = await SessionManager.getUser();
-    final String activeDesa = (namaDesa == 'BARUDUA' && currentUser?.desa?.namaDesa != null)
+    final String activeDesa = (namaDesa == 'DESA' && currentUser?.desa?.namaDesa != null)
         ? currentUser!.desa!.namaDesa
         : namaDesa;
     final String activeKec = (kecamatan == 'MALANGBONG' && currentUser?.desa?.namaKecamatan != null)

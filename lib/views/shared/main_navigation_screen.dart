@@ -90,7 +90,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         NavItemData(
           icon: Icons.verified_outlined,
           activeIcon: Icons.verified_rounded,
-          label: 'Setoran',
+          label: 'Verif Setor',
         ),
         NavItemData(
           icon: Icons.person_outline,
@@ -146,7 +146,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         NavItemData(
           icon: Icons.account_balance_wallet_outlined,
           activeIcon: Icons.account_balance_wallet_rounded,
-          label: 'Setoran',
+          label: 'Pengeluaran',
         ),
         NavItemData(
           icon: Icons.table_chart_outlined,

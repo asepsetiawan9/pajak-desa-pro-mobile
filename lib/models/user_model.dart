@@ -39,7 +39,8 @@ class UserModel {
     }
     if (dusunAkses is String) {
       final str = (dusunAkses as String).trim();
-      if (str.isEmpty || str == 'all' || str == '*') return [];
+      final lower = str.toLowerCase();
+      if (str.isEmpty || lower == 'all' || lower == 'semua' || str == '*') return [];
       return str.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
     }
     return [];
