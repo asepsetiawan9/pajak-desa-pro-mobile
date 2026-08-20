@@ -11,16 +11,16 @@ class SettingsProvider with ChangeNotifier {
   SettingsModel get settings => _settings;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
-
-  Future<void> fetchSettings({String? desaId}) async {
+  // 1. Call Api with Params
+  Future<void> fetchSettings({int? desaId}) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
       final Map<String, String> queryParams = {};
-      if (desaId != null && desaId.isNotEmpty) {
-        queryParams['desa_id'] = desaId;
+      if (desaId != null && desaId != 0) {
+        queryParams['desa_id'] = desaId.toString();
       }
 
       final response = await ApiService.get(
@@ -30,7 +30,9 @@ class SettingsProvider with ChangeNotifier {
 
       if (response.success && response.data != null) {
         if (response.data is Map<String, dynamic>) {
-          _settings = SettingsModel.fromJson(response.data as Map<String, dynamic>);
+          _settings = SettingsModel.fromJson(
+            response.data as Map<String, dynamic>,
+          );
         }
       } else {
         _errorMessage = response.message;

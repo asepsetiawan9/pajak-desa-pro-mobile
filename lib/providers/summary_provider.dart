@@ -17,7 +17,10 @@ class SummaryProvider extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
 
-    final Map<String, String>? queryParams = (desaId != null && desaId.trim().isNotEmpty && desaId.trim().toLowerCase() != 'all')
+    final Map<String, String>? queryParams =
+        (desaId != null &&
+            desaId.trim().isNotEmpty &&
+            desaId.trim().toLowerCase() != 'all')
         ? {'desa_id': desaId.trim()}
         : null;
 
@@ -28,7 +31,41 @@ class SummaryProvider extends ChangeNotifier {
 
     if (response.success && response.data != null) {
       try {
-        final Map<String, dynamic> dataMap = response.data is Map<String, dynamic> ? response.data : {};
+        final Map<String, dynamic> dataMap =
+            response.data is Map<String, dynamic> ? response.data : {};
+        _summary = SummaryMetricsModel.fromJson(dataMap);
+      } catch (e) {
+        _errorMessage = 'Gagal memproses data statistik: ${e.toString()}';
+      }
+    } else {
+      _errorMessage = response.message;
+    }
+
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  Future<void> fetchSummaryKolektor({int? desaId}) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    final Map<String, String>? queryParams =
+        (desaId != null &&
+            desaId.toString().trim().isNotEmpty &&
+            desaId.toString().trim().toLowerCase() != 'all')
+        ? {'desa_id': desaId.toString().trim()}
+        : null;
+
+    final response = await ApiService.get(
+      ApiConstants.summaryMetricsEndpoint,
+      queryParams: queryParams,
+    );
+
+    if (response.success && response.data != null) {
+      try {
+        final Map<String, dynamic> dataMap =
+            response.data is Map<String, dynamic> ? response.data : {};
         _summary = SummaryMetricsModel.fromJson(dataMap);
       } catch (e) {
         _errorMessage = 'Gagal memproses data statistik: ${e.toString()}';

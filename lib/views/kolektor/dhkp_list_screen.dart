@@ -57,7 +57,9 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
     if (auth.user?.isKepalaDesa == true) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Akses Lihat-Saja: Kepala Desa tidak dapat melakukan transaksi pembayaran.'),
+          content: Text(
+            'Akses Lihat-Saja: Kepala Desa tidak dapat melakukan transaksi pembayaran.',
+          ),
           backgroundColor: AppColors.warning,
         ),
       );
@@ -125,6 +127,7 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
 
     return Column(
       children: [
+        SizedBox(height: MediaQuery.of(context).padding.top),
         Container(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
           decoration: BoxDecoration(
@@ -141,10 +144,19 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               DhkpSummaryHeader(
-                totalCount: dhkpProvider.totalRows > 0 ? dhkpProvider.totalRows : dhkpProvider.allRows.length,
-                totalPbb: dhkpProvider.allRows.fold(0.0, (sum, item) => sum + item.pbbTerutang),
-                terbayarPbb: dhkpProvider.allRows.where((r) => r.isTerbayar).fold(0.0, (sum, item) => sum + item.pbbTerutang),
-                piutangPbb: dhkpProvider.allRows.where((r) => !r.isTerbayar).fold(0.0, (sum, item) => sum + item.pbbTerutang),
+                totalCount: dhkpProvider.totalRows > 0
+                    ? dhkpProvider.totalRows
+                    : dhkpProvider.allRows.length,
+                totalPbb: dhkpProvider.allRows.fold(
+                  0.0,
+                  (sum, item) => sum + item.pbbTerutang,
+                ),
+                terbayarPbb: dhkpProvider.allRows
+                    .where((r) => r.isTerbayar)
+                    .fold(0.0, (sum, item) => sum + item.pbbTerutang),
+                piutangPbb: dhkpProvider.allRows
+                    .where((r) => !r.isTerbayar)
+                    .fold(0.0, (sum, item) => sum + item.pbbTerutang),
               ),
               const SizedBox(height: 12),
               Row(
@@ -572,10 +584,20 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
                     itemBuilder: (context, index) {
                       if (index < dhkpProvider.filteredRows.length) {
                         final item = dhkpProvider.filteredRows[index];
-                        return DhkpCardItem(
-                          item: item,
-                          showDesaBadge: user?.isSuperAdminSystem ?? false,
-                          onPayTap: (!item.isTerbayar && !(user?.isKepalaDesa ?? false)) ? () => _openBayarModal(item) : null,
+                        return InkWell(
+                          onTap: () {
+                            print('DHKP Item tapped: ${item.nop}');
+                            _showDhkpDetailBottomSheet(context, item);
+                          },
+                          child: DhkpCardItem(
+                            item: item,
+                            showDesaBadge: user?.isSuperAdminSystem ?? false,
+                            onPayTap:
+                                (!item.isTerbayar &&
+                                    !(user?.isKepalaDesa ?? false))
+                                ? () => _openBayarModal(item)
+                                : null,
+                          ),
                         );
                       }
                       return Container(
@@ -733,6 +755,371 @@ class _DhkpListScreenState extends State<DhkpListScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  void _showDhkpDetailBottomSheet(BuildContext context, dynamic item) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(24),
+              topRight: Radius.circular(24),
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 1. GARIS INDIKATOR PEGANGAN (HANDLE BAR)
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 5,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // 2. JUDUL BOTTOM SHEET
+              const Text(
+                'Detail Informasi SPPT DHKP',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+              const Divider(height: 24, thickness: 1),
+
+              // 3. KONTEN DETAIL DATA
+              _buildDetailItem('NOP', item.nop ?? '-'),
+              _buildDetailItem('Nama Wajib Pajak', item.namaWp ?? '-'),
+
+              // Label Domisili (Background soft)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Domisili',
+                      style: TextStyle(color: Colors.grey, fontSize: 14),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: item.domisili == 'LUAR_DESA'
+                            ? Colors.red.withAlpha(30)
+                            : Colors.green.withAlpha(30),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        item.domisili?.replaceAll('_', ' ') ?? '-',
+                        style: TextStyle(
+                          color: item.domisili == 'LUAR_DESA'
+                              ? Colors.red
+                              : Colors.green,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              _buildDetailItem(
+                'Status Bayar',
+                item.isTerbayar ? 'LUNAS' : 'BELUM BAYAR',
+                textColor: item.isTerbayar ? Colors.green : Colors.red,
+              ),
+
+              const SizedBox(height: 28),
+
+              // 4. ACTION BUTTONS (EDIT & HAPUS BERDAMPINGAN)
+              Row(
+                children: [
+                  // TOMBOL HAPUS DATA (MERAH)
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        Navigator.pop(context); // Tutup bottom sheet dulu
+                        _konfirmasiHapusData(
+                          item,
+                        ); // Panggil fungsi konfirmasi hapus Anda
+                      },
+                      icon: const Icon(
+                        Icons.delete_outline_rounded,
+                        color: Colors.red,
+                        size: 18,
+                      ),
+                      label: const Text(
+                        'Hapus',
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        side: const BorderSide(color: Colors.red, width: 1.2),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+
+                  // TOMBOL EDIT DATA (BIRU/AMBER)
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.pop(context); // Tutup bottom sheet dulu
+                        _openEditModal(
+                          item,
+                        ); // Panggil fungsi buka halaman/modal edit Anda
+                      },
+                      icon: const Icon(Icons.edit_outlined, size: 18),
+                      label: const Text(
+                        'Edit Data',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors
+                            .blue
+                            .shade700, // Bisa diganti AppColors.primary atau Colors.amber
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // Widget pembantu untuk merapikan deretan data informasi teks kiri-kanan
+  Widget _buildDetailItem(String label, String value, {Color? textColor}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: const TextStyle(color: Colors.grey, fontSize: 14)),
+          Expanded(
+            child: Text(
+              value,
+              textAlign: TextAlign.end,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: textColor ?? Colors.black87,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _konfirmasiHapusData(dynamic item) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: const Row(
+            children: [
+              Icon(Icons.warning_amber_rounded, color: Colors.red),
+              SizedBox(width: 8),
+              Text('Hapus Data SPPT'),
+            ],
+          ),
+          content: Text(
+            'Apakah Anda yakin ingin menghapus data dengan NOP ${item.nop} atas nama ${item.namaWp}?',
+            style: const TextStyle(fontSize: 14),
+          ),
+          actions: [
+            // Tombol Batal
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Batal', style: TextStyle(color: Colors.grey)),
+            ),
+            // Tombol Konfirmasi Hapus
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context); // Tutup dialog
+
+                // Tampilkan notifikasi sementara
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Aksi Hapus dipicu untuk NOP: ${item.nop}'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+
+                // TODO: Hubungkan ke provider Anda nanti di sini
+                // dhkpProvider.deleteDhkp(item.id);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text(
+                'Hapus',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _openEditModal(dynamic item) {
+    // Buat controller textfield dan isi datanya sesuai item terpilih
+    final TextEditingController nopController = TextEditingController(
+      text: item.nop,
+    );
+    final TextEditingController namaWpController = TextEditingController(
+      text: item.namaWp,
+    );
+    // final TextEditingController kecamatanController = TextEditingController(
+    //   text: item.kecamatan,
+    // );
+
+    showDialog(
+      context: context,
+      barrierDismissible: false, // User wajib menekan Simpan atau Batal
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: const Text(
+            'Edit Data DHKP',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Input NOP
+                const Text(
+                  'NOP',
+                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
+                ),
+                const SizedBox(height: 6),
+                TextField(
+                  controller: nopController,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Input Nama WP
+                const Text(
+                  'Nama Wajib Pajak',
+                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
+                ),
+                const SizedBox(height: 6),
+                TextField(
+                  controller: namaWpController,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Input Kecamatan
+                const Text(
+                  'Kecamatan',
+                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
+                ),
+                const SizedBox(height: 6),
+              ],
+            ),
+          ),
+          actions: [
+            // Tombol Batal
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Batal', style: TextStyle(color: Colors.grey)),
+            ),
+            // Tombol Simpan
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context); // Tutup dialog edit
+
+                // Tampilkan notifikasi sementara bawa nilai input terbaru
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'Simpan perubahan untuk Nama: ${namaWpController.text}',
+                    ),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+
+                // TODO: Hubungkan ke provider Anda nanti di sini
+                // dhkpProvider.updateDhkp(item.id, name: namaWpController.text, ...);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue.shade700,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text(
+                'Simpan',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

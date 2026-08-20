@@ -75,7 +75,7 @@ class DhkpCardItem extends StatelessWidget {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            'NOP: ${item.nop}',
+                            'NOP : ${item.nop}',
                             style: const TextStyle(
                               fontSize: 11,
                               color: AppColors.textMuted,
@@ -104,8 +104,11 @@ class DhkpCardItem extends StatelessWidget {
                       Expanded(
                         child: Row(
                           children: [
-                            const Icon(Icons.location_on_rounded,
-                                size: 14, color: AppColors.primary),
+                            const Icon(
+                              Icons.location_on_rounded,
+                              size: 14,
+                              color: AppColors.primary,
+                            ),
                             const SizedBox(width: 4),
                             Expanded(
                               child: Text(
@@ -124,17 +127,20 @@ class DhkpCardItem extends StatelessWidget {
                       ),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 2),
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
                           color: item.isLuarDesa
                               ? AppColors.warningBg
                               : AppColors.info.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(6),
                           border: Border.all(
-                            color: (item.isLuarDesa
-                                    ? AppColors.warning
-                                    : AppColors.info)
-                                .withValues(alpha: 0.3),
+                            color:
+                                (item.isLuarDesa
+                                        ? AppColors.warning
+                                        : AppColors.info)
+                                    .withValues(alpha: 0.3),
                           ),
                         ),
                         child: Row(
@@ -171,19 +177,25 @@ class DhkpCardItem extends StatelessWidget {
                 if (showDesaBadge && (item.namaDesa?.isNotEmpty ?? false)) ...[
                   const SizedBox(height: 8),
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.primary.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                          color: AppColors.primary.withValues(alpha: 0.2)),
+                        color: AppColors.primary.withValues(alpha: 0.2),
+                      ),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.location_city_rounded,
-                            size: 12, color: AppColors.primary),
+                        const Icon(
+                          Icons.location_city_rounded,
+                          size: 12,
+                          color: AppColors.primary,
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           item.namaDesa!,
@@ -233,7 +245,9 @@ class DhkpCardItem extends StatelessWidget {
                           backgroundColor: AppColors.primary,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 14, vertical: 8),
+                            horizontal: 14,
+                            vertical: 8,
+                          ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -259,8 +273,9 @@ class DhkpCardItem extends StatelessWidget {
         color: isLunas ? AppColors.successBg : AppColors.dangerBg,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: (isLunas ? AppColors.success : AppColors.danger)
-              .withValues(alpha: 0.3),
+          color: (isLunas ? AppColors.success : AppColors.danger).withValues(
+            alpha: 0.3,
+          ),
         ),
       ),
       child: Row(

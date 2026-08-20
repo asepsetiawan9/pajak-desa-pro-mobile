@@ -37,15 +37,41 @@ class SettingsModel {
     }
 
     return SettingsModel(
-      namaDesa: json['nama_desa']?.toString() ?? json['namaDesa']?.toString() ?? 'Desa',
-      namaKecamatan: json['nama_kecamatan']?.toString() ?? json['namaKecamatan']?.toString() ?? 'Kecamatan',
-      namaKabupaten: json['nama_kabupaten']?.toString() ?? json['namaKabupaten']?.toString() ?? 'Kabupaten',
-      namaKades: json['nama_kades']?.toString() ?? json['namaKades']?.toString() ?? 'Kepala Desa',
-      jabatanKades: json['jabatan_kades']?.toString() ?? json['jabatanKades']?.toString() ?? 'Kepala Desa',
-      namaPetugas: json['nama_petugas']?.toString() ?? json['namaPetugas']?.toString() ?? 'Bendahara / Kolektor',
-      jabatanPetugas: json['jabatan_petugas']?.toString() ?? json['jabatanPetugas']?.toString() ?? 'Bendahara PBB-P2',
-      enableFeeKolektorLuarDesa: parseBool(json['enable_fee_kolektor_luar_desa'] ?? json['enableFeeKolektorLuarDesa']),
-      feeKolektorLuarDesa: parseDouble(json['fee_kolektor_luar_desa'] ?? json['feeKolektorLuarDesa']),
+      namaDesa:
+          json['nama_desa']?.toString() ??
+          json['namaDesa']?.toString() ??
+          'Desa',
+      namaKecamatan:
+          json['nama_kecamatan']?.toString() ??
+          json['namaKecamatan']?.toString() ??
+          'Kecamatan',
+      namaKabupaten:
+          json['kabupaten']?.toString() ??
+          json['namaKabupaten']?.toString() ??
+          'Kabupaten',
+      namaKades:
+          json['nama_kades']?.toString() ??
+          json['namaKades']?.toString() ??
+          'Kepala Desa',
+      jabatanKades:
+          json['jabatan_kades']?.toString() ??
+          json['jabatanKades']?.toString() ??
+          'Kepala Desa',
+      namaPetugas:
+          json['nama_petugas']?.toString() ??
+          json['namaPetugas']?.toString() ??
+          'Bendahara / Kolektor',
+      jabatanPetugas:
+          json['jabatan_petugas']?.toString() ??
+          json['jabatanPetugas']?.toString() ??
+          'Bendahara PBB-P2',
+      enableFeeKolektorLuarDesa: parseBool(
+        json['enable_fee_kolektor_luar_desa'] ??
+            json['enableFeeKolektorLuarDesa'],
+      ),
+      feeKolektorLuarDesa: parseDouble(
+        json['fee_kolektor_luar_desa'] ?? json['feeKolektorLuarDesa'],
+      ),
     );
   }
 

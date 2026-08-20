@@ -66,6 +66,9 @@ class DhkpProvider extends ChangeNotifier {
     bool isRefresh = false,
     UserModel? currentUser,
   }) async {
+    print(
+      'Fetching DHKP data... isRefresh: $isRefresh, currentUser: ${currentUser?.id}',
+    );
     if (isRefresh) {
       _currentPage = 1;
       _hasMore = true;
@@ -139,7 +142,7 @@ class DhkpProvider extends ChangeNotifier {
     if (_selectedDomisili.trim().toUpperCase() != 'ALL') {
       queryParams['domisili'] = _selectedDomisili.trim().toUpperCase();
     }
-
+    // Query Params for Sorting
     final response = await ApiService.get(
       ApiConstants.dhkpEndpoint,
       queryParams: queryParams,

@@ -111,7 +111,10 @@ class _KolektorDashboardState extends State<KolektorDashboard> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final auth = Provider.of<AuthProvider>(context, listen: false);
-      Provider.of<SummaryProvider>(context, listen: false).fetchSummary();
+      Provider.of<SummaryProvider>(
+        context,
+        listen: false,
+      ).fetchSummaryKolektor(desaId: auth.user?.desa?.id);
       Provider.of<DhkpProvider>(
         context,
         listen: false,
@@ -182,7 +185,9 @@ class _KolektorDashboardState extends State<KolektorDashboard> {
       ),
       body: RefreshIndicator(
         onRefresh: () async {
-          await summaryProvider.fetchSummary();
+          await summaryProvider.fetchSummaryKolektor(
+            desaId: authProvider.user?.desa?.id,
+          );
           await dhkpProvider.fetchDhkp();
         },
         color: AppColors.primary,
@@ -281,6 +286,14 @@ class _KolektorDashboardState extends State<KolektorDashboard> {
                           ),
                         ),
                       ],
+                    ),
+                    Text(
+                      'Total SPPT : ${(summary?.totalSppt ?? 0)}',
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
                     ),
                   ],
                 ),

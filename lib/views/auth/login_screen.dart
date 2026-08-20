@@ -96,18 +96,18 @@ class _LoginScreenState extends State<LoginScreen> {
                     Text(
                       'Lentera Pajak Mobile',
                       style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                            fontSize: 26,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1,
-                          ),
+                        fontSize: 26,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       'Portal Penagihan & Executive Mobile',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: AppColors.accent,
-                            fontWeight: FontWeight.w500,
-                          ),
+                        color: AppColors.accent,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ],
                 ),
@@ -120,18 +120,24 @@ class _LoginScreenState extends State<LoginScreen> {
                 decoration: BoxDecoration(
                   color: AppColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+                  border: Border.all(
+                    color: AppColors.primary.withValues(alpha: 0.3),
+                  ),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.info_outline, color: AppColors.primaryLight, size: 20),
+                    const Icon(
+                      Icons.info_outline,
+                      color: AppColors.primaryLight,
+                      size: 20,
+                    ),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         'Aplikasi Mobile khusus diakses oleh Kolektor dan Kepala Desa.',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppColors.textPrimary,
-                            ),
+                          color: AppColors.textPrimary,
+                        ),
                       ),
                     ),
                   ],
@@ -148,9 +154,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     Text(
                       'Username',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: AppColors.textPrimary,
-                            fontWeight: FontWeight.w600,
-                          ),
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     TextFormField(
@@ -159,7 +165,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       textInputAction: TextInputAction.next,
                       decoration: const InputDecoration(
                         hintText: 'Masukkan username anda',
-                        prefixIcon: Icon(Icons.person_outline, color: AppColors.textMuted),
+                        prefixIcon: Icon(
+                          Icons.person_outline,
+                          color: AppColors.textMuted,
+                        ),
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
@@ -173,9 +182,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     Text(
                       'Password',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: AppColors.textPrimary,
-                            fontWeight: FontWeight.w600,
-                          ),
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     TextFormField(
@@ -185,10 +194,15 @@ class _LoginScreenState extends State<LoginScreen> {
                       onFieldSubmitted: (_) => _handleLogin(),
                       decoration: InputDecoration(
                         hintText: 'Masukkan password anda',
-                        prefixIcon: const Icon(Icons.lock_outline, color: AppColors.textMuted),
+                        prefixIcon: const Icon(
+                          Icons.lock_outline,
+                          color: AppColors.textMuted,
+                        ),
                         suffixIcon: IconButton(
                           icon: Icon(
-                            _obscureText ? Icons.visibility_off : Icons.visibility,
+                            _obscureText
+                                ? Icons.visibility_off
+                                : Icons.visibility,
                             color: AppColors.textMuted,
                           ),
                           onPressed: () {
@@ -214,18 +228,23 @@ class _LoginScreenState extends State<LoginScreen> {
                         decoration: BoxDecoration(
                           color: AppColors.dangerBg,
                           borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: AppColors.danger.withValues(alpha: 0.5)),
+                          border: Border.all(
+                            color: AppColors.danger.withValues(alpha: 0.5),
+                          ),
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.error_outline, color: AppColors.danger, size: 20),
+                            const Icon(
+                              Icons.error_outline,
+                              color: AppColors.danger,
+                              size: 20,
+                            ),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
                                 authProvider.errorMessage!,
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: AppColors.danger,
-                                    ),
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(color: AppColors.danger),
                               ),
                             ),
                           ],
@@ -265,10 +284,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       'Copyright © 2026 CV. Inital Dhiq Skalaloka. All rights reserved.',
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            fontSize: 10,
-                            color: AppColors.textMuted,
-                            fontWeight: FontWeight.w600,
-                          ),
+                        fontSize: 10,
+                        color: AppColors.textMuted,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ],
                 ),

@@ -15,12 +15,12 @@ import 'views/shared/splash_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Custom Error Boundary Handler for Production Resilience
   ErrorWidget.builder = (FlutterErrorDetails details) {
     return CustomErrorWidget(details: details);
   };
-  
+
   FlutterError.onError = (FlutterErrorDetails details) {
     FlutterError.presentError(details);
     debugPrint('Global Error Captured: ${details.exception}');
@@ -42,6 +42,7 @@ class PajakMobileApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => SummaryProvider()),
         ChangeNotifierProvider(create: (_) => DesaFilterProvider()),
         ChangeNotifierProvider(create: (_) => SetoranKecamatanProvider()),
+        // 1. SettingsProvider is now initialized here to ensure settings are fetched after the first frame is rendered
         ChangeNotifierProvider(create: (_) => SettingsProvider()),
       ],
       child: MaterialApp(
