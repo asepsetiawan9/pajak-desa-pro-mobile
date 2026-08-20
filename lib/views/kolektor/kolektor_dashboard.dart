@@ -92,8 +92,9 @@ class _KolektorDashboardState extends State<KolektorDashboard> {
               Navigator.pop(ctx);
               await authProvider.logout();
               if (!context.mounted) return;
-              Navigator.of(context).pushReplacement(
+              Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(builder: (_) => const LoginScreen()),
+                (route) => false,
               );
             },
             child: const Text(
@@ -114,7 +115,7 @@ class _KolektorDashboardState extends State<KolektorDashboard> {
       Provider.of<SummaryProvider>(
         context,
         listen: false,
-      ).fetchSummaryKolektor(desaId: auth.user?.desa?.id);
+      ).fetchSummaryKolektor(desaId: auth.user?.desaId ?? auth.user?.desa?.id);
       Provider.of<DhkpProvider>(
         context,
         listen: false,
@@ -185,10 +186,11 @@ class _KolektorDashboardState extends State<KolektorDashboard> {
       ),
       body: RefreshIndicator(
         onRefresh: () async {
-          await summaryProvider.fetchSummaryKolektor(
-            desaId: authProvider.user?.desa?.id,
-          );
-          await dhkpProvider.fetchDhkp();
+          final desaId = authProvider.user?.desaId ?? authProvider.user?.desa?.id;
+          await Future.wait([
+            summaryProvider.fetchSummaryKolektor(desaId: desaId),
+            dhkpProvider.fetchDhkp(isRefresh: true, currentUser: authProvider.user),
+          ]);
         },
         color: AppColors.primary,
         child: SingleChildScrollView(

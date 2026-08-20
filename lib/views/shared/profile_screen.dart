@@ -82,8 +82,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Navigator.pop(ctx);
               await authProvider.logout();
               if (!context.mounted) return;
-              Navigator.of(context).pushReplacement(
+              Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(builder: (_) => const LoginScreen()),
+                (route) => false,
               );
             },
             child: const Text(
@@ -115,30 +116,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final settingsProvider = Provider.of<SettingsProvider>(context);
     final user = authProvider.user;
     final set = settingsProvider.settings;
-    final isSuperAdminSystem = user?.isSuperAdminSystem ?? false;
     final isKades = user?.isKepalaDesa ?? false;
 
-    final String roleBadgeText = isSuperAdminSystem
-        ? 'ADMIN KECAMATAN (PENGAWASAN)'
-        : isKades
+    final String roleBadgeText = isKades
         ? 'KEPALA DESA (EKSEKUTIF)'
         : 'KOLEKTOR LAPANGAN PBB-P2';
 
-    final Color roleBadgeColor = isSuperAdminSystem
-        ? AppColors.primary
-        : isKades
+    final Color roleBadgeColor = isKades
         ? const Color(0xFFD97706)
         : AppColors.primary;
 
-    final Color roleBadgeBg = isSuperAdminSystem
-        ? AppColors.primary.withValues(alpha: 0.1)
-        : isKades
+    final Color roleBadgeBg = isKades
         ? const Color(0xFFFFFBEB)
         : AppColors.primary.withValues(alpha: 0.1);
 
-    final Color roleBadgeBorder = isSuperAdminSystem
-        ? AppColors.primary.withValues(alpha: 0.3)
-        : isKades
+    final Color roleBadgeBorder = isKades
         ? const Color(0xFFFCD34D)
         : AppColors.primary.withValues(alpha: 0.3);
 
@@ -177,13 +169,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     height: 90,
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      gradient: isSuperAdminSystem
-                          ? const LinearGradient(
-                              colors: [Color(0xFF0284C7), Color(0xFF0EA5E9)],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            )
-                          : isKades
+                      gradient: isKades
                           ? const LinearGradient(
                               colors: [Color(0xFF0F766E), Color(0xFF14B8A6)],
                               begin: Alignment.topLeft,
@@ -200,9 +186,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           right: -20,
                           top: -20,
                           child: Icon(
-                            isSuperAdminSystem
-                                ? Icons.verified_user_rounded
-                                : isKades
+                            isKades
                                 ? Icons.admin_panel_settings_rounded
                                 : Icons.shield_rounded,
                             size: 140,
@@ -239,21 +223,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                                 child: CircleAvatar(
                                   radius: 42,
-                                  backgroundColor: isSuperAdminSystem
-                                      ? const Color(0xFFE0F2FE)
-                                      : isKades
+                                  backgroundColor: isKades
                                       ? const Color(0xFFFEF3C7)
                                       : AppColors.successBg,
                                   child: Icon(
-                                    isSuperAdminSystem
-                                        ? Icons.verified_rounded
-                                        : isKades
+                                    isKades
                                         ? Icons.stars_rounded
                                         : Icons.person_pin_rounded,
                                     size: 48,
-                                    color: isSuperAdminSystem
-                                        ? const Color(0xFF0284C7)
-                                        : isKades
+                                    color: isKades
                                         ? const Color(0xFFD97706)
                                         : AppColors.primary,
                                   ),
@@ -304,9 +282,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Icon(
-                                  isSuperAdminSystem
-                                      ? Icons.account_balance_rounded
-                                      : isKades
+                                  isKades
                                       ? Icons.workspace_premium_rounded
                                       : Icons.badge_rounded,
                                   size: 16,
@@ -335,7 +311,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           ),
                           Text(
-                            '${set?.namaDesa ?? 'N/A'}',
+                            set.namaDesa.isNotEmpty ? set.namaDesa : 'N/A',
                             style: const TextStyle(
                               color: AppColors.textMuted,
                               fontSize: 13,
@@ -343,7 +319,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           ),
                           Text(
-                            ', Kecamatan : ${set?.namaKecamatan ?? 'N/A'}',
+                            ', Kecamatan : ${set.namaKecamatan.isNotEmpty ? set.namaKecamatan : 'N/A'}',
                             style: const TextStyle(
                               color: AppColors.textMuted,
                               fontSize: 13,
@@ -351,7 +327,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           ),
                           Text(
-                            'Kabupaten : ${set?.namaKabupaten ?? 'N/A'}',
+                            'Kabupaten : ${set.namaKabupaten.isNotEmpty ? set.namaKabupaten : 'N/A'}',
                             style: const TextStyle(
                               color: AppColors.textMuted,
                               fontSize: 13,
@@ -371,11 +347,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             children: [
                               _buildMiniKpiItem(
                                 label: 'Hak Akses Role',
-                                value: isSuperAdminSystem
-                                    ? 'Kecamatan'
-                                    : isKades
-                                    ? 'Eksekutif'
-                                    : 'Kolektor',
+                                value: isKades ? 'Eksekutif' : 'Kolektor',
                                 icon: Icons.security_rounded,
                                 iconColor: AppColors.info,
                               ),
@@ -386,11 +358,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                               _buildMiniKpiItem(
                                 label: 'Cakupan Wilayah',
-                                value: isSuperAdminSystem
-                                    ? 'Kecamatan'
-                                    : (user?.allowedDusuns.isEmpty ?? true
-                                          ? 'Semua Dusun'
-                                          : '${user!.allowedDusuns.length} Dusun'),
+                                value: (isKades || (user?.allowedDusuns.isEmpty ?? true))
+                                    ? 'Semua Dusun'
+                                    : '${user!.allowedDusuns.length} Dusun',
                                 icon: Icons.map_rounded,
                                 iconColor: AppColors.primary,
                               ),
@@ -425,9 +395,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    isSuperAdminSystem
-                        ? 'Sebagai Admin Kecamatan, Anda memiliki akses pengawasan & rekapitulasi real-time seluruh desa di wilayah kecamatan.'
-                        : isKades
+                    isKades
                         ? 'Sebagai Kepala Desa, Anda memiliki akses pemantauan data real-time untuk seluruh dusun di wilayah desa.'
                         : 'Aplikasi disaring secara otomatis hanya untuk menampilkan data SPPT & penerimaan di dusun berikut:',
                     style: const TextStyle(
@@ -437,9 +405,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   const SizedBox(height: 14),
-                  if (isSuperAdminSystem ||
-                      isKades ||
-                      (user?.allowedDusuns.isEmpty ?? true))
+                  if (isKades || (user?.allowedDusuns.isEmpty ?? true))
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(
@@ -453,20 +419,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           color: AppColors.success.withValues(alpha: 0.3),
                         ),
                       ),
-                      child: Row(
+                      child: const Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.verified_rounded,
                             color: AppColors.success,
                             size: 20,
                           ),
-                          const SizedBox(width: 10),
+                          SizedBox(width: 10),
                           Expanded(
                             child: Text(
-                              isSuperAdminSystem
-                                  ? 'Seluruh Desa di Kecamatan ${user?.desa?.namaKecamatan ?? "Kecamatan"}'
-                                  : 'Seluruh Wilayah Desa (Akses Penuh / Executive)',
-                              style: const TextStyle(
+                              'Seluruh Wilayah Desa (Akses Penuh / Executive)',
+                              style: TextStyle(
                                 color: AppColors.success,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 13,
@@ -526,30 +490,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               icon: Icons.verified_user_rounded,
               iconColor: AppColors.info,
               child: Column(
-                children: isSuperAdminSystem
-                    ? [
-                        _buildFeatureTile(
-                          icon: Icons.analytics_rounded,
-                          title: 'Dashboard Executive Rekap Seluruh Desa',
-                          subtitle:
-                              'Pantau target PBB, realisasi, & setoran seluruh desa di kecamatan',
-                          enabled: true,
-                        ),
-                        _buildFeatureTile(
-                          icon: Icons.bar_chart_rounded,
-                          title: 'Monitoring DHKP & Transaksi Lintas Desa',
-                          subtitle: 'Pencarian & statistik SPPT lintas desa',
-                          enabled: true,
-                        ),
-                        _buildFeatureTile(
-                          icon: Icons.verified_rounded,
-                          title: 'Verifikasi Setoran Desa ke Kecamatan',
-                          subtitle:
-                              'Persetujuan / penolakan setoran kas desa ke kecamatan',
-                          enabled: true,
-                        ),
-                      ]
-                    : isKades
+                children: isKades
                     ? [
                         _buildFeatureTile(
                           icon: Icons.insert_chart_rounded,
@@ -559,10 +500,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           enabled: true,
                         ),
                         _buildFeatureTile(
+                          icon: Icons.account_balance_wallet_rounded,
+                          title: 'Pengeluaran PBB-P2 & Setoran Desa',
+                          subtitle:
+                              'Persetujuan pengeluaran kas internal & pemantauan kas desa',
+                          enabled: true,
+                        ),
+                        _buildFeatureTile(
                           icon: Icons.table_chart_rounded,
                           title: 'Laporan 21 Kolom & Filter Buku I-V',
                           subtitle:
                               'Akses penuh laporan keuangan & klasifikasi buku pajak',
+                          enabled: true,
+                        ),
+                        _buildFeatureTile(
+                          icon: Icons.assignment_rounded,
+                          title: 'Data DHKP Seluruh Desa',
+                          subtitle:
+                              'Pemantauan & penelusuran status ketetapan SPPT desa',
                           enabled: true,
                         ),
                         _buildFeatureTile(

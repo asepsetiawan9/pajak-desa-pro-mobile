@@ -29,8 +29,8 @@ class UserModel {
   bool get isSuperAdmin => role.toLowerCase().replaceAll('_', '') == 'superadmin';
   bool get isBendahara => role.toLowerCase().replaceAll('_', '') == 'bendahara';
 
-  /// Roles allowed to access Mobile app
-  bool get isMobileAllowed => isKolektor || isKepalaDesa || isSuperAdminSystem;
+  /// Roles allowed to access Mobile app (Hanya Kolektor dan Kepala Desa)
+  bool get isMobileAllowed => isKolektor || isKepalaDesa;
 
   List<String> get allowedDusuns {
     if (dusunAkses == null) return [];

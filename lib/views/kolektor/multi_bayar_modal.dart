@@ -98,6 +98,7 @@ class _MultiBayarModalState extends State<MultiBayarModal> {
       uangDibayar: _uangDibayarVal > 0 ? _uangDibayarVal : _totalBayar,
       kembalian: _kembalian,
       catatan: _catatanController.text.trim(),
+      desaId: authProvider.user?.desaId ?? (widget.selectedItems.isNotEmpty ? widget.selectedItems.first.desaId : null),
     );
 
     if (!mounted) return;

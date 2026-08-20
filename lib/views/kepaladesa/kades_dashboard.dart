@@ -37,10 +37,94 @@ class _KadesDashboardState extends State<KadesDashboard> {
     final desaId = authProvider.user?.desaId?.toString();
 
     await Future.wait([
-      Provider.of<SummaryProvider>(context, listen: false).fetchSummary(),
+      Provider.of<SummaryProvider>(context, listen: false).fetchSummary(desaId: desaId),
       Provider.of<SetoranKecamatanProvider>(context, listen: false).fetchSummary(desaId: desaId),
       Provider.of<SetoranKecamatanProvider>(context, listen: false).fetchSetoranList(desaId: desaId),
     ]);
+  }
+
+  void _confirmLogout(BuildContext context, AuthProvider authProvider) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        backgroundColor: AppColors.surface,
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: const BoxDecoration(
+                color: AppColors.dangerBg,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.logout_rounded,
+                color: AppColors.danger,
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 14),
+            const Text(
+              'Konfirmasi Keluar',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: AppColors.textPrimary,
+              ),
+            ),
+          ],
+        ),
+        content: const Text(
+          'Apakah Anda yakin ingin keluar dari akun Kepala Desa? Anda perlu login kembali untuk mengakses pemantauan eksekutif.',
+          style: TextStyle(
+            color: AppColors.textSecondary,
+            fontSize: 14,
+            height: 1.4,
+          ),
+        ),
+        actionsPadding: const EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 16,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.textMuted,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            ),
+            child: const Text(
+              'Batal',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.danger,
+              foregroundColor: Colors.white,
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            ),
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await authProvider.logout();
+              if (!context.mounted) return;
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (_) => const LoginScreen()),
+                (route) => false,
+              );
+            },
+            child: const Text(
+              'Keluar Akun',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -85,21 +169,14 @@ class _KadesDashboardState extends State<KadesDashboard> {
           IconButton(
             icon: const Icon(Icons.logout_rounded, color: AppColors.danger),
             tooltip: 'Keluar',
-            onPressed: () async {
-              final navigator = Navigator.of(context);
-              await authProvider.logout();
-              if (!mounted) return;
-              navigator.pushReplacement(
-                MaterialPageRoute(builder: (_) => const LoginScreen()),
-              );
-            },
+            onPressed: () => _confirmLogout(context, authProvider),
           ),
         ],
       ),
       body: summaryProvider.isLoading
           ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
           : RefreshIndicator(
-              onRefresh: () => summaryProvider.fetchSummary(),
+              onRefresh: _loadDashboardData,
               color: AppColors.primary,
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(16),
@@ -358,10 +435,14 @@ class _KadesDashboardState extends State<KadesDashboard> {
               IconButton(
                 icon: const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: AppColors.primary),
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const KadesSetoranScreen()),
-                  );
+                  if (widget.onNavigateTab != null) {
+                    widget.onNavigateTab!(1);
+                  } else {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const KadesSetoranScreen()),
+                    );
+                  }
                 },
               ),
             ],
@@ -532,10 +613,14 @@ class _KadesDashboardState extends State<KadesDashboard> {
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const KadesSetoranScreen()),
-                    );
+                    if (widget.onNavigateTab != null) {
+                      widget.onNavigateTab!(1);
+                    } else {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const KadesSetoranScreen()),
+                      );
+                    }
                   },
                   icon: const Icon(Icons.list_alt_rounded, size: 16),
                   label: const Text('Catatan Lengkap', style: TextStyle(fontSize: 12)),

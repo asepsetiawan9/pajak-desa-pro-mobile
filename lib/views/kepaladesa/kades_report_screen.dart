@@ -35,9 +35,16 @@ class _KadesReportScreenState extends State<KadesReportScreen> {
       _errorMessage = null;
     });
 
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final Map<String, String> queryParams = {'buku': _filterBuku};
+    final desaId = authProvider.user?.desaId?.toString();
+    if (desaId != null && desaId.isNotEmpty) {
+      queryParams['desa_id'] = desaId;
+    }
+
     final res = await ApiService.get(
       ApiConstants.report21ColumnEndpoint,
-      queryParams: {'buku': _filterBuku},
+      queryParams: queryParams,
     );
 
     if (res.success && res.data != null) {

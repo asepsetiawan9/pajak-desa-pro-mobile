@@ -6,6 +6,7 @@ import '../models/dhkp_model.dart';
 import '../models/user_model.dart';
 
 class DhkpProvider extends ChangeNotifier {
+  UserModel? _currentUser;
   List<DhkpModel> _allRows = [];
   List<DhkpModel> _filteredRows = [];
   bool _isLoading = false;
@@ -29,6 +30,7 @@ class DhkpProvider extends ChangeNotifier {
 
   Timer? _debounceTimer;
 
+  UserModel? get currentUser => _currentUser;
   List<DhkpModel> get allRows => _allRows;
   List<DhkpModel> get items => _allRows;
   List<DhkpModel> get filteredRows => _filteredRows;
@@ -66,9 +68,11 @@ class DhkpProvider extends ChangeNotifier {
     bool isRefresh = false,
     UserModel? currentUser,
   }) async {
-    print(
-      'Fetching DHKP data... isRefresh: $isRefresh, currentUser: ${currentUser?.id}',
-    );
+    if (currentUser != null) {
+      _currentUser = currentUser;
+    }
+    final activeUser = currentUser ?? _currentUser;
+
     if (isRefresh) {
       _currentPage = 1;
       _hasMore = true;
@@ -80,7 +84,7 @@ class DhkpProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _loadPageData(page: 1, currentUser: currentUser);
+      await _loadPageData(page: 1, currentUser: activeUser);
     } catch (e) {
       _errorMessage = 'Gagal memuat data DHKP: ${e.toString()}';
     } finally {
@@ -92,13 +96,16 @@ class DhkpProvider extends ChangeNotifier {
 
   Future<void> fetchNextPage({UserModel? currentUser}) async {
     if (_isLoading || _isLoadingMore || !_hasMore) return;
+    if (currentUser != null) {
+      _currentUser = currentUser;
+    }
 
     _isLoadingMore = true;
     notifyListeners();
 
     final nextPage = _currentPage + 1;
     try {
-      await _loadPageData(page: nextPage, currentUser: currentUser);
+      await _loadPageData(page: nextPage, currentUser: currentUser ?? _currentUser);
     } catch (e) {
       _errorMessage = 'Gagal memuat halaman berikutnya: ${e.toString()}';
     } finally {
@@ -111,6 +118,7 @@ class DhkpProvider extends ChangeNotifier {
     required int page,
     UserModel? currentUser,
   }) async {
+    final activeUser = currentUser ?? _currentUser;
     final Map<String, String> queryParams = {
       'page': page.toString(),
       'limit': _perPage.toString(),
@@ -122,6 +130,8 @@ class DhkpProvider extends ChangeNotifier {
 
     if (_selectedDesaId.trim().toUpperCase() != 'ALL') {
       queryParams['desa_id'] = _selectedDesaId.trim();
+    } else if (activeUser != null && !activeUser.isSuperAdminSystem && activeUser.desaId != null) {
+      queryParams['desa_id'] = activeUser.desaId.toString();
     }
 
     if (_selectedDusun.trim().toUpperCase() != 'ALL') {
@@ -193,7 +203,7 @@ class DhkpProvider extends ChangeNotifier {
           _allRows.addAll(parsedRows);
         }
 
-        _applyFilters(currentUser);
+        _applyFilters(activeUser);
       } catch (e) {
         _errorMessage = 'Gagal membaca data DHKP: ${e.toString()}';
       }
@@ -203,65 +213,83 @@ class DhkpProvider extends ChangeNotifier {
   }
 
   void setSearchQuery(String query, {UserModel? currentUser}) {
+    if (currentUser != null) _currentUser = currentUser;
     _searchQuery = query;
     _debounceTimer?.cancel();
     _debounceTimer = Timer(const Duration(milliseconds: 350), () {
-      fetchDhkp(isRefresh: true, currentUser: currentUser);
+      fetchDhkp(isRefresh: true, currentUser: currentUser ?? _currentUser);
     });
   }
 
   void setSelectedDesaId(String desaId, {UserModel? currentUser}) {
+    if (currentUser != null) _currentUser = currentUser;
     if (_selectedDesaId != desaId) {
       _selectedDesaId = desaId;
-      fetchDhkp(isRefresh: true, currentUser: currentUser);
+      fetchDhkp(isRefresh: true, currentUser: currentUser ?? _currentUser);
     }
   }
 
   void setSelectedDusun(String dusun, {UserModel? currentUser}) {
+    if (currentUser != null) _currentUser = currentUser;
     if (_selectedDusun != dusun) {
       _selectedDusun = dusun;
-      fetchDhkp(isRefresh: true, currentUser: currentUser);
+      fetchDhkp(isRefresh: true, currentUser: currentUser ?? _currentUser);
     }
   }
 
   void setSelectedStatus(String status, {UserModel? currentUser}) {
+    if (currentUser != null) _currentUser = currentUser;
     if (_selectedStatus != status) {
       _selectedStatus = status;
-      fetchDhkp(isRefresh: true, currentUser: currentUser);
+      fetchDhkp(isRefresh: true, currentUser: currentUser ?? _currentUser);
     }
   }
 
   void setSelectedDomisili(String domisili, {UserModel? currentUser}) {
+    if (currentUser != null) _currentUser = currentUser;
     if (_selectedDomisili != domisili) {
       _selectedDomisili = domisili;
-      fetchDhkp(isRefresh: true, currentUser: currentUser);
+      fetchDhkp(isRefresh: true, currentUser: currentUser ?? _currentUser);
     }
   }
 
   void setSortBy(String sortOption, {UserModel? currentUser}) {
+    if (currentUser != null) _currentUser = currentUser;
     if (_sortBy != sortOption) {
       _sortBy = sortOption;
-      _applyFilters(currentUser);
+      _applyFilters(currentUser ?? _currentUser);
       notifyListeners();
     }
   }
 
   void resetFilters({UserModel? currentUser}) {
+    if (currentUser != null) _currentUser = currentUser;
     _searchQuery = '';
     _selectedDesaId = 'ALL';
     _selectedDusun = 'ALL';
     _selectedStatus = 'ALL';
     _selectedDomisili = 'ALL';
     _sortBy = 'default';
-    fetchDhkp(isRefresh: true, currentUser: currentUser);
+    fetchDhkp(isRefresh: true, currentUser: currentUser ?? _currentUser);
   }
 
-  void _applyFilters(UserModel? currentUser) {
+  void _applyFilters([UserModel? currentUser]) {
+    final activeUser = currentUser ?? _currentUser;
     List<DhkpModel> temp = List.from(_allRows);
 
-    // 1. Collector Dusun Access Scope Client-side safeguard
-    if (currentUser != null && currentUser.isKolektor) {
-      final allowedDusuns = currentUser.allowedDusuns
+    // 1. Tenant/Desa Isolation Client-side defense-in-depth safeguard
+    if (activeUser != null && !activeUser.isSuperAdminSystem && activeUser.desaId != null) {
+      temp = temp.where((row) => row.desaId == null || row.desaId == activeUser.desaId).toList();
+    } else if (_selectedDesaId.trim().toUpperCase() != 'ALL') {
+      final selectedId = int.tryParse(_selectedDesaId.trim());
+      if (selectedId != null) {
+        temp = temp.where((row) => row.desaId == null || row.desaId == selectedId).toList();
+      }
+    }
+
+    // 2. Collector Dusun Access Scope Client-side safeguard
+    if (activeUser != null && activeUser.isKolektor) {
+      final allowedDusuns = activeUser.allowedDusuns
           .map((d) => d.trim().toLowerCase())
           .where((d) => d.isNotEmpty && d != 'all' && d != '*')
           .toList();
@@ -274,7 +302,7 @@ class DhkpProvider extends ChangeNotifier {
       }
     }
 
-    // 2. Status Filter Client-side safeguard
+    // 3. Status Filter Client-side safeguard
     final statusUpper = _selectedStatus.trim().toUpperCase();
     if (statusUpper == 'TERBAYAR' || statusUpper == 'LUNAS') {
       temp = temp.where((row) => row.isTerbayar).toList();

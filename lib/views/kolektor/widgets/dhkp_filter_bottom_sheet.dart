@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../providers/desa_filter_provider.dart';
 import '../../../providers/dhkp_provider.dart';
 
 class DhkpFilterBottomSheet extends StatelessWidget {
@@ -40,8 +38,6 @@ class DhkpFilterBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final desaFilter = Provider.of<DesaFilterProvider>(context, listen: false);
-    final isSuperAdmin = user?.isSuperAdminSystem == true || user?.isSuperAdmin == true;
     final List<String> effectiveDusuns = allowedDusuns.isNotEmpty
         ? allowedDusuns
         : (provider.allRows
@@ -174,30 +170,7 @@ class DhkpFilterBottomSheet extends StatelessWidget {
               ),
               const SizedBox(height: 20),
 
-              // Section 2: Wilayah Desa (Khusus Admin Kecamatan / Super Admin)
-              if (isSuperAdmin && desaFilter.desaList.isNotEmpty) ...[
-                const Text(
-                  'Wilayah Desa',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    _buildModalDesaChip('ALL', 'Semua Desa', provider, desaFilter, setModalState),
-                    for (final desa in desaFilter.desaList)
-                      _buildModalDesaChip(desa.id.toString(), desa.namaDesa, provider, desaFilter, setModalState),
-                  ],
-                ),
-                const SizedBox(height: 20),
-              ],
-
-              // Section 3: Wilayah Dusun
+              // Section 2: Wilayah Dusun
               if (effectiveDusuns.isNotEmpty) ...[
                 const Text(
                   'Wilayah Dusun',
@@ -367,31 +340,6 @@ class DhkpFilterBottomSheet extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildModalDesaChip(
-    String val,
-    String label,
-    DhkpProvider provider,
-    DesaFilterProvider desaFilter,
-    StateSetter setModalState,
-  ) {
-    final isSelected = desaFilter.selectedDesaId == val;
-    return FilterChip(
-      selected: isSelected,
-      label: Text(label),
-      onSelected: (selected) {
-        if (selected) {
-          desaFilter.setSelectedDesa(val);
-          provider.setSelectedDesaId(val, currentUser: user);
-          setModalState(() {});
-        }
-      },
-      selectedColor: AppColors.primary.withValues(alpha: 0.2),
-      checkmarkColor: AppColors.primary,
-      backgroundColor: AppColors.surfaceCard,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
     );
   }
 

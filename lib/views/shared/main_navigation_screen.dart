@@ -8,9 +8,6 @@ import '../kolektor/penerimaan_pbb_screen.dart';
 import '../kepaladesa/kades_dashboard.dart';
 import '../kepaladesa/kades_report_screen.dart';
 import '../kepaladesa/kades_setoran_screen.dart';
-import '../admin_kecamatan/admin_dashboard.dart';
-import '../admin_kecamatan/monitoring_screen.dart';
-import '../admin_kecamatan/setoran_screen.dart';
 import '../auth/login_screen.dart';
 import 'profile_screen.dart';
 import 'custom_bottom_nav.dart';
@@ -60,45 +57,13 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     }
 
     final user = authProvider.user;
-
     final isKolektor = user?.isKolektor ?? true;
-    final isSuperAdminSystem = user?.isSuperAdminSystem ?? false;
 
-    // Configure Pages & Nav Items per Role
+    // Configure Pages & Nav Items per Role (Kolektor & Kepala Desa)
     final List<Widget> pages;
     final List<NavItemData> navItems;
 
-    if (isSuperAdminSystem) {
-      // Admin Kecamatan — Dashboard, Monitoring, Setoran, Profil
-      pages = [
-        AdminDashboard(onNavigateTab: _onTabSelected),
-        const MonitoringScreen(),
-        const SetoranScreen(),
-        const ProfileScreen(),
-      ];
-      navItems = const [
-        NavItemData(
-          icon: Icons.analytics_outlined,
-          activeIcon: Icons.analytics_rounded,
-          label: 'Dashboard',
-        ),
-        NavItemData(
-          icon: Icons.bar_chart_outlined,
-          activeIcon: Icons.bar_chart_rounded,
-          label: 'Monitoring',
-        ),
-        NavItemData(
-          icon: Icons.verified_outlined,
-          activeIcon: Icons.verified_rounded,
-          label: 'Verif Setor',
-        ),
-        NavItemData(
-          icon: Icons.person_outline,
-          activeIcon: Icons.person_rounded,
-          label: 'Profil',
-        ),
-      ];
-    } else if (isKolektor) {
+    if (isKolektor) {
       // Kolektor — Beranda, Penerimaan, Data DHKP, Profil
       pages = [
         KolektorDashboard(onNavigateTab: _onTabSelected),

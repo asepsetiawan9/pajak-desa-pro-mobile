@@ -39,30 +39,47 @@ class ApiService {
     return headers;
   }
 
-  static Future<ApiResponse> get(String endpoint, {Map<String, String>? queryParams, bool requireAuth = true}) async {
-    try {
-      final baseUrl = await SessionManager.getBaseUrl();
-      var uri = Uri.parse('$baseUrl$endpoint');
-      if (queryParams != null && queryParams.isNotEmpty) {
-        uri = uri.replace(queryParameters: queryParams);
+  static Future<ApiResponse> get(
+    String endpoint, {
+    Map<String, String>? queryParams,
+    bool requireAuth = true,
+    int maxRetries = 2,
+  }) async {
+    int attempts = 0;
+    while (true) {
+      attempts++;
+      try {
+        final baseUrl = await SessionManager.getBaseUrl();
+        var uri = Uri.parse('$baseUrl$endpoint');
+        if (queryParams != null && queryParams.isNotEmpty) {
+          uri = uri.replace(queryParameters: queryParams);
+        }
+
+        final headers = await _getHeaders(requireAuth: requireAuth);
+        final response = await http.get(uri, headers: headers).timeout(const Duration(seconds: 15));
+
+        return _processResponse(response, endpoint: endpoint);
+      } on TimeoutException {
+        if (attempts <= maxRetries) {
+          await Future.delayed(Duration(milliseconds: 800 * attempts));
+          continue;
+        }
+        return ApiResponse(
+          success: false,
+          message: 'Koneksi timeout. Pastikan backend server aktif dan jaringan stabil.',
+          statusCode: 408,
+        );
+      } catch (e) {
+        if (attempts <= maxRetries && !e.toString().contains('FormatException')) {
+          await Future.delayed(Duration(milliseconds: 800 * attempts));
+          continue;
+        }
+        return ApiResponse(
+          success: false,
+          message: 'Gagal terhubung ke server. Periksa koneksi internet Anda: ${e.toString()}',
+          statusCode: 500,
+        );
       }
-
-      final headers = await _getHeaders(requireAuth: requireAuth);
-      final response = await http.get(uri, headers: headers).timeout(const Duration(seconds: 15));
-
-      return _processResponse(response, endpoint: endpoint);
-    } on TimeoutException {
-      return ApiResponse(
-        success: false,
-        message: 'Koneksi timeout. Pastikan backend server aktif.',
-        statusCode: 408,
-      );
-    } catch (e) {
-      return ApiResponse(
-        success: false,
-        message: 'Gagal terhubung ke server: ${e.toString()}',
-        statusCode: 500,
-      );
     }
   }
 

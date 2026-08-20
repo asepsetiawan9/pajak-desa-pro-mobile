@@ -79,6 +79,7 @@ class _BayarModalState extends State<BayarModal> {
       totalBayar: _totalBayar,
       metodePembayaran: _metodePembayaran,
       catatan: _catatanController.text.trim(),
+      desaId: authProvider.user?.desaId ?? widget.dhkpItem.desaId,
     );
 
     if (!mounted) return;

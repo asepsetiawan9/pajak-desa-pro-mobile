@@ -61,9 +61,23 @@ class SessionManager {
     }
   }
 
-  static Future<void> saveBaseUrl(String url) async {
+  static Future<bool> saveBaseUrl(String url) async {
+    final trimmed = url.trim();
+    if (trimmed.isEmpty) return false;
+    
+    // Cegah menyimpan localhost atau local emulator di production setup
+    if (trimmed.contains('10.0.2.2') || trimmed.contains('127.0.0.1') || trimmed.contains('localhost')) {
+      return false;
+    }
+
+    final uri = Uri.tryParse(trimmed);
+    if (uri == null || (!uri.isScheme('http') && !uri.isScheme('https')) || uri.host.isEmpty) {
+      return false;
+    }
+
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(ApiConstants.customBaseUrlKey, url);
+    await prefs.setString(ApiConstants.customBaseUrlKey, trimmed);
+    return true;
   }
 
   static Future<String> getBaseUrl() async {
