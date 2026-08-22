@@ -24,7 +24,7 @@ Aplikasi Mobile Resmi **LENTERA (Layanan Elektronik Terpadu Pajak Daerah)** — 
   - Ringkasan KPI Realisasi Pajak Desa secara real-time.
   - Laporan Rekapitulasi 21 Kolom lengkap dengan filter Buku I s/d Buku V.
 - **🌐 Dynamic Server Switcher**:
-  - Peralihan otomatis/manual server host dari `Android Emulator (10.0.2.2)`, `Local Desktop (127.0.0.1)`, hingga `VPS Production (backend.barudua.initd.web.id)`.
+  - Peralihan otomatis/manual server host dari `Android Emulator (10.0.2.2)`, `Local Desktop (127.0.0.1)`, hingga `VPS Production (backend.barudua.web.id)`.
 
 ---
 
