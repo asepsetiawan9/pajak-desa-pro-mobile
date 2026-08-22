@@ -2,7 +2,7 @@ class ApiConstants {
   // Preset Server Options
   static const String defaultLocalAndroidEmulator = 'http://10.0.2.2:8000/api/v1';
   static const String defaultLocalDesktop = 'http://127.0.0.1:8000/api/v1';
-  static const String defaultProductionVps = 'http://backend.barudua.initd.web.id/api/v1';
+  static const String defaultProductionVps = 'http://backend.barudua.web.id/api/v1';
   static const String defaultBaseUrl = defaultProductionVps;
 
   // Key for local storage
