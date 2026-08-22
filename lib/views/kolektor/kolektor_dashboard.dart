@@ -7,6 +7,9 @@ import '../../core/constants/app_colors.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/summary_provider.dart';
 import '../../providers/dhkp_provider.dart';
+import '../../providers/kolektor_target_provider.dart';
+import 'widgets/kolektor_target_card.dart';
+import 'kinerja_kolektor_screen.dart';
 
 class KolektorDashboard extends StatefulWidget {
   final Function(int)? onNavigateTab;
@@ -112,6 +115,7 @@ class _KolektorDashboardState extends State<KolektorDashboard> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final auth = Provider.of<AuthProvider>(context, listen: false);
+      final currentYear = DateTime.now().year;
       Provider.of<SummaryProvider>(
         context,
         listen: false,
@@ -120,6 +124,10 @@ class _KolektorDashboardState extends State<KolektorDashboard> {
         context,
         listen: false,
       ).fetchDhkp(currentUser: auth.user);
+      Provider.of<KolektorTargetProvider>(
+        context,
+        listen: false,
+      ).fetchMyPerformance(currentYear);
     });
   }
 
@@ -187,9 +195,14 @@ class _KolektorDashboardState extends State<KolektorDashboard> {
       body: RefreshIndicator(
         onRefresh: () async {
           final desaId = authProvider.user?.desaId ?? authProvider.user?.desa?.id;
+          final currentYear = DateTime.now().year;
           await Future.wait([
             summaryProvider.fetchSummaryKolektor(desaId: desaId),
             dhkpProvider.fetchDhkp(isRefresh: true, currentUser: authProvider.user),
+            Provider.of<KolektorTargetProvider>(
+              context,
+              listen: false,
+            ).fetchMyPerformance(currentYear),
           ]);
         },
         color: AppColors.primary,
@@ -198,6 +211,18 @@ class _KolektorDashboardState extends State<KolektorDashboard> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Target & Kinerja Kolektor Card Widget
+              KolektorTargetCard(
+                onTapDetail: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const KinerjaKolektorScreen(),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 16),
+
               // Welcome & Realisasi Header Card
               Container(
                 width: double.infinity,

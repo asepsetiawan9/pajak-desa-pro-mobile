@@ -35,4 +35,9 @@ class ApiConstants {
 
   // API Endpoints — Audit Logs
   static const String auditLogsEndpoint = '/audit-logs';
+
+  // API Endpoints — Kolektor Target & Performance
+  static const String kolektorTargetsEndpoint = '/kolektor-targets';
+  static const String kolektorMyPerformanceEndpoint = '/kolektor-targets/my-performance';
+  static const String kolektorLeaderboardEndpoint = '/kolektor-targets/leaderboard';
 }
