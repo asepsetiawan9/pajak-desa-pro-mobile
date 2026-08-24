@@ -10,6 +10,7 @@ import 'providers/summary_provider.dart';
 import 'providers/desa_filter_provider.dart';
 import 'providers/setoran_kecamatan_provider.dart';
 import 'providers/settings_provider.dart';
+import 'providers/kolektor_target_provider.dart';
 import 'views/shared/error_boundary.dart';
 import 'views/shared/splash_screen.dart';
 
@@ -44,6 +45,7 @@ class PajakMobileApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => SetoranKecamatanProvider()),
         // 1. SettingsProvider is now initialized here to ensure settings are fetched after the first frame is rendered
         ChangeNotifierProvider(create: (_) => SettingsProvider()),
+        ChangeNotifierProvider(create: (_) => KolektorTargetProvider()),
       ],
       child: MaterialApp(
         navigatorKey: NavigationService.navigatorKey,
