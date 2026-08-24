@@ -64,11 +64,6 @@ class SessionManager {
   static Future<bool> saveBaseUrl(String url) async {
     final trimmed = url.trim();
     if (trimmed.isEmpty) return false;
-    
-    // Cegah menyimpan localhost atau local emulator di production setup
-    if (trimmed.contains('10.0.2.2') || trimmed.contains('127.0.0.1') || trimmed.contains('localhost')) {
-      return false;
-    }
 
     final uri = Uri.tryParse(trimmed);
     if (uri == null || (!uri.isScheme('http') && !uri.isScheme('https')) || uri.host.isEmpty) {
@@ -84,16 +79,9 @@ class SessionManager {
     final prefs = await SharedPreferences.getInstance();
     final customUrl = prefs.getString(ApiConstants.customBaseUrlKey);
     if (customUrl != null && customUrl.isNotEmpty) {
-      if (customUrl.contains('10.0.2.2') ||
-          customUrl.contains('127.0.0.1') ||
-          customUrl.contains('localhost') ||
-          customUrl.contains('initd.web.id')) {
-        await prefs.remove(ApiConstants.customBaseUrlKey);
-        return ApiConstants.defaultProductionVps;
-      }
       return customUrl;
     }
-    return ApiConstants.defaultProductionVps;
+    return ApiConstants.defaultBaseUrl;
   }
 
   static Future<void> clearSession() async {
