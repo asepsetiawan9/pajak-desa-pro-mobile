@@ -56,7 +56,7 @@ class _KolektorDashboardState extends State<KolektorDashboard> {
           ],
         ),
         content: const Text(
-          'Apakah Anda yakin ingin keluar dari akun LENTERA Mobile? Anda perlu login kembali untuk mengakses data penagihan.',
+          'Apakah Anda yakin ingin keluar dari akun SIPABAR Mobile? Anda perlu login kembali untuk mengakses data penagihan.',
           style: TextStyle(
             color: AppColors.textSecondary,
             fontSize: 14,

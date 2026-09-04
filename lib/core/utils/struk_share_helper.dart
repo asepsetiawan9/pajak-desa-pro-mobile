@@ -37,7 +37,7 @@ class StrukShareHelper {
 
     final StringBuffer sb = StringBuffer();
     sb.writeln('========================================');
-    sb.writeln('  LENTERA - SURAT TANDA TERIMA SETORAN  ');
+    sb.writeln('  SIPABAR - SURAT TANDA TERIMA SETORAN  ');
     sb.writeln('        PBB-P2 KAB. ${activeKab.toUpperCase()}        ');
     sb.writeln('  KEC. ${activeKec.toUpperCase()} - DESA ${activeDesa.toUpperCase()}  ');
     sb.writeln('========================================');
@@ -59,7 +59,7 @@ class StrukShareHelper {
     sb.writeln('========================================');
     sb.writeln('Terima kasih atas partisipasi Anda dalam');
     sb.writeln('pembayaran PBB-P2 untuk pembangunan desa.');
-    sb.writeln('LENTERA • Layanan Elektronik Terpadu Pajak');
+    sb.writeln('SIPABAR • Sistem Informasi Pajak Barudua');
 
     // ignore: deprecated_member_use
     await Share.share(
