@@ -192,7 +192,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
                       ),
                       const SizedBox(height: 2),
                       const Text(
-                        'LENTERA - SURAT TANDA TERIMA SETORAN (STTS)',
+                        'SIPABAR - SURAT TANDA TERIMA SETORAN (STTS)',
                         style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.primary),
                         textAlign: TextAlign.center,
                       ),

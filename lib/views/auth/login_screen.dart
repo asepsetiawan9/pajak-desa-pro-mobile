@@ -276,7 +276,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   children: [
                     Text(
-                      'LENTERA (Layanan Elektronik Terpadu Pajak Daerah) v1.0 • Mobile',
+                      'SIPABAR (Sistem Informasi Pajak Barudua) v1.0 • Mobile',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     const SizedBox(height: 4),

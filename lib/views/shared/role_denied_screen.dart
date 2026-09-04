@@ -58,7 +58,7 @@ class RoleDeniedScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                'Aplikasi Mobile LENTERA khusus diperuntukkan bagi Kolektor dan Kepala Desa untuk kegiatan penagihan & pemantauan di lapangan.\n\nAkun Super Admin dan Bendahara diimbau menggunakan Portal Web Desktop.',
+                'Aplikasi Mobile SIPABAR khusus diperuntukkan bagi Kolektor dan Kepala Desa untuk kegiatan penagihan & pemantauan di lapangan.\n\nAkun Super Admin dan Bendahara diimbau menggunakan Portal Web Desktop.',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: AppColors.textSecondary,

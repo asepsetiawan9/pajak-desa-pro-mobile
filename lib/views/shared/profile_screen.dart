@@ -45,7 +45,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ],
         ),
         content: const Text(
-          'Apakah Anda yakin ingin keluar dari akun LENTERA Mobile? Anda perlu login kembali untuk mengakses data penagihan.',
+          'Apakah Anda yakin ingin keluar dari akun SIPABAR Mobile? Anda perlu login kembali untuk mengakses data penagihan.',
           style: TextStyle(
             color: AppColors.textSecondary,
             fontSize: 14,
@@ -258,7 +258,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            user?.name ?? 'Pengguna LENTERA',
+                            user?.name ?? 'Pengguna SIPABAR',
                             textAlign: TextAlign.center,
                             style: Theme.of(context).textTheme.titleLarge
                                 ?.copyWith(
@@ -508,7 +508,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: ElevatedButton.icon(
                 onPressed: () => _confirmLogout(context, authProvider),
                 icon: const Icon(Icons.logout_rounded),
-                label: const Text('Keluar dari Akun LENTERA'),
+                label: const Text('Keluar dari Akun SIPABAR'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.dangerBg,
                   foregroundColor: AppColors.danger,
