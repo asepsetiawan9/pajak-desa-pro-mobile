@@ -79,6 +79,13 @@ class SessionManager {
     final prefs = await SharedPreferences.getInstance();
     final customUrl = prefs.getString(ApiConstants.customBaseUrlKey);
     if (customUrl != null && customUrl.isNotEmpty) {
+      if (customUrl.contains('127.0.0.1') ||
+          customUrl.contains('10.0.2.2') ||
+          customUrl.contains('localhost') ||
+          customUrl.contains('initd.web.id')) {
+        await prefs.remove(ApiConstants.customBaseUrlKey);
+        return ApiConstants.defaultBaseUrl;
+      }
       return customUrl;
     }
     return ApiConstants.defaultBaseUrl;
