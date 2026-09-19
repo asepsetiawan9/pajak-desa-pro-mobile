@@ -81,14 +81,14 @@ class _SplashScreenState extends State<SplashScreen> {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(24),
                     child: Image.asset(
-                      'assets/images/app_icon.png',
+                      'assets/images/sipabarlogo.png',
                       fit: BoxFit.cover,
                     ),
                   ),
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  'Lentera Pajak Mobile',
+                  'SIPABAR Mobile',
                   style: Theme.of(context).textTheme.displayLarge?.copyWith(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
@@ -97,7 +97,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Layanan Elektronik Terpadu Pajak Daerah',
+                  'Sistem Informasi Pajak Barudua',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: AppColors.accent,
                         fontWeight: FontWeight.w500,

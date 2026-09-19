@@ -87,14 +87,14 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(20),
                         child: Image.asset(
-                          'assets/images/app_icon.png',
+                          'assets/images/sipabarlogo.png',
                           fit: BoxFit.cover,
                         ),
                       ),
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Lentera Pajak Mobile',
+                      'SIPABAR Mobile',
                       style: Theme.of(context).textTheme.displayLarge?.copyWith(
                         fontSize: 26,
                         fontWeight: FontWeight.bold,
@@ -103,7 +103,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Portal Penagihan & Executive Mobile',
+                      'Sistem Informasi Pajak Barudua • Mobile',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: AppColors.accent,
                         fontWeight: FontWeight.w500,
@@ -276,7 +276,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   children: [
                     Text(
-                      'SIPABAR (Sistem Informasi Pajak Barudua) v1.0 • Mobile',
+                      'SIPABAR (Sistem Informasi Pajak Barudua) v2.0 • Mobile',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     const SizedBox(height: 4),
