@@ -49,7 +49,7 @@ class PajakMobileApp extends StatelessWidget {
       ],
       child: MaterialApp(
         navigatorKey: NavigationService.navigatorKey,
-        title: 'Lentera Pajak Mobile',
+        title: 'SIPABAR Mobile',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
         home: const SplashScreen(),
