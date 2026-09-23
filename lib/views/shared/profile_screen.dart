@@ -491,7 +491,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               iconColor: AppColors.textMuted,
               child: Column(
                 children: [
-                  _buildInfoRow('Versi Aplikasi', 'v2.0.0 (Versi Produksi)'),
+                  _buildInfoRow('Versi Aplikasi', 'v2.0.1 (Versi Produksi)'),
                   const SizedBox(height: 8),
                   _buildInfoRow(
                     'Hak Cipta / Copyright',
