@@ -13,7 +13,7 @@ class AuthProvider extends ChangeNotifier {
   UserModel? _user;
   String? _errorMessage;
   bool _isAccessDeniedRole = false;
-  String _currentBaseUrl = ApiConstants.defaultProductionVps;
+  String _currentBaseUrl = ApiConstants.defaultBaseUrl;
 
   bool get isLoading => _isLoading;
   bool get isLoggedIn => _isLoggedIn;

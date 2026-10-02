@@ -82,8 +82,10 @@ class SessionManager {
       if (customUrl.contains('127.0.0.1') ||
           customUrl.contains('10.0.2.2') ||
           customUrl.contains('localhost') ||
-          customUrl.contains('initd.web.id') ||
+          customUrl.contains('barudua.initd.web.id') ||
+          customUrl.contains('pajak.backend.initd.web.id') ||
           customUrl.startsWith('http://backend.barudua.web.id') ||
+          customUrl.startsWith('http://pbbdemo.backend.initd.web.id') ||
           customUrl.startsWith('http://')) {
         await prefs.remove(ApiConstants.customBaseUrlKey);
         return ApiConstants.defaultBaseUrl;

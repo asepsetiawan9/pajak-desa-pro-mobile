@@ -3,6 +3,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/constants/app_colors.dart';
+import '../../core/constants/api_constants.dart';
 import '../../providers/auth_provider.dart';
 import '../shared/main_navigation_screen.dart';
 import '../shared/role_denied_screen.dart';
@@ -50,6 +51,141 @@ class _LoginScreenState extends State<LoginScreen> {
         MaterialPageRoute(builder: (_) => const RoleDeniedScreen()),
       );
     }
+  }
+
+  void _quickFill(String username, String password) {
+    setState(() {
+      _usernameController.text = username;
+      _passwordController.text = password;
+    });
+  }
+
+  void _showServerSwitcher(BuildContext context, AuthProvider authProvider) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      backgroundColor: AppColors.surface,
+      builder: (ctx) {
+        final currentUrl = authProvider.currentBaseUrl;
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.dns_rounded, color: AppColors.primary),
+                    const SizedBox(width: 10),
+                    Text(
+                      'Pilih Server Tujuan',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                _buildServerTile(
+                  ctx,
+                  authProvider,
+                  title: 'Demo Server (Desa Sukatani - Cisurupan)',
+                  subtitle: ApiConstants.defaultDemoVps,
+                  url: ApiConstants.defaultDemoVps,
+                  isSelected: currentUrl == ApiConstants.defaultDemoVps,
+                ),
+                const SizedBox(height: 10),
+                _buildServerTile(
+                  ctx,
+                  authProvider,
+                  title: 'Produksi (Desa Barudua - Malangbong)',
+                  subtitle: ApiConstants.defaultProductionVps,
+                  url: ApiConstants.defaultProductionVps,
+                  isSelected: currentUrl == ApiConstants.defaultProductionVps,
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildServerTile(
+    BuildContext ctx,
+    AuthProvider authProvider, {
+    required String title,
+    required String subtitle,
+    required String url,
+    required bool isSelected,
+  }) {
+    return InkWell(
+      onTap: () async {
+        Navigator.pop(ctx);
+        await authProvider.setBaseUrl(url);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Server dialihkan ke: $title'),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppColors.primary.withValues(alpha: 0.1)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? AppColors.primary : AppColors.glassBorder,
+            width: isSelected ? 1.5 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              isSelected
+                  ? Icons.radio_button_checked
+                  : Icons.radio_button_unchecked,
+              color: isSelected ? AppColors.primary : AppColors.textMuted,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontWeight:
+                          isSelected ? FontWeight.bold : FontWeight.w600,
+                      fontSize: 14,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textMuted,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -103,16 +239,145 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Sistem Informasi Pajak Barudua • Mobile',
+                      'Sistem Informasi Pajak Daerah • Mobile',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: AppColors.accent,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
+                    const SizedBox(height: 12),
+
+                    // Server Mode Badge (Interactive)
+                    InkWell(
+                      onTap: () => _showServerSwitcher(context, authProvider),
+                      borderRadius: BorderRadius.circular(20),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: authProvider.currentBaseUrl.contains('pbbdemo')
+                              ? Colors.green.withValues(alpha: 0.12)
+                              : AppColors.primary.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: authProvider.currentBaseUrl.contains('pbbdemo')
+                                ? Colors.green.withValues(alpha: 0.5)
+                                : AppColors.primary.withValues(alpha: 0.3),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.circle,
+                              size: 8,
+                              color: authProvider.currentBaseUrl.contains('pbbdemo')
+                                  ? Colors.green
+                                  : AppColors.primary,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              authProvider.currentBaseUrl.contains('pbbdemo')
+                                  ? 'Mode Demo: Desa Sukatani'
+                                  : 'Server: Barudua Produksi',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: authProvider.currentBaseUrl.contains('pbbdemo')
+                                    ? Colors.green.shade700
+                                    : AppColors.primary,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            const Icon(
+                              Icons.arrow_drop_down,
+                              size: 18,
+                              color: AppColors.textMuted,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
+
+              // Demo Quick Access Card
+              if (authProvider.currentBaseUrl.contains('pbbdemo')) ...[
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: Colors.amber.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: Colors.amber.withValues(alpha: 0.35),
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: const [
+                          Icon(Icons.bolt_rounded, size: 18, color: Colors.amber),
+                          SizedBox(width: 6),
+                          Text(
+                            'Akses Cepat Demo (Desa Sukatani)',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                              color: Colors.amber,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          ActionChip(
+                            avatar: const Icon(Icons.person, size: 14),
+                            label: const Text(
+                              'Kolektor 1 (Sukatani)',
+                              style: TextStyle(fontSize: 11),
+                            ),
+                            onPressed: () => _quickFill(
+                              'kolektor.sukatani',
+                              'KolektorSukatani@2026!',
+                            ),
+                          ),
+                          ActionChip(
+                            avatar: const Icon(Icons.person, size: 14),
+                            label: const Text(
+                              'Kolektor 2 (Pasirangin)',
+                              style: TextStyle(fontSize: 11),
+                            ),
+                            onPressed: () => _quickFill(
+                              'kolektor.pasirangin',
+                              'KolektorPasirangin@2026!',
+                            ),
+                          ),
+                          ActionChip(
+                            avatar: const Icon(Icons.account_balance, size: 14),
+                            label: const Text(
+                              'Kepala Desa',
+                              style: TextStyle(fontSize: 11),
+                            ),
+                            onPressed: () => _quickFill(
+                              'kades.sukatani',
+                              'KadesSukatani@2026!',
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
 
               // Role Notice Card
               Container(

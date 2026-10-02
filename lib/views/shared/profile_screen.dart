@@ -486,12 +486,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             // 3. Informasi Aplikasi Card
             _buildSectionCard(
-              title: 'Informasi Aplikasi',
+              title: 'Informasi Aplikasi & Server',
               icon: Icons.info_outline_rounded,
               iconColor: AppColors.textMuted,
               child: Column(
                 children: [
-                  _buildInfoRow('Versi Aplikasi', 'v2.0.1 (Versi Produksi)'),
+                  _buildInfoRow('Versi Aplikasi', 'v2.0.1 (Demo Sukatani)'),
+                  const SizedBox(height: 8),
+                  _buildInfoRow(
+                    'Server Terhubung',
+                    authProvider.currentBaseUrl.contains('pbbdemo')
+                        ? 'Demo Server (Sukatani)'
+                        : 'Produksi (Barudua)',
+                  ),
                   const SizedBox(height: 8),
                   _buildInfoRow(
                     'Hak Cipta / Copyright',
